@@ -19,7 +19,8 @@ const protect = async (req, res, next) => {
             );
 
             // Get user from token payload (exclude password)
-            req.user = await User.findById(decoded.id).select("-password");
+            const userId = decoded.userId || decoded.id;
+            req.user = await User.findById(userId).select("-password");
 
             if (!req.user) {
                 return res.status(401).json({
