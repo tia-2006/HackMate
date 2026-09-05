@@ -5,6 +5,7 @@ require("dotenv").config();
 const connectDB = require("./config/db");
 const userRoutes = require("./routes/userRoutes");
 const profileRoutes = require("./routes/profileRoutes");
+const teammateRoutes = require("./routes/teammateRoutes");
 
 const app = express();
 
@@ -18,6 +19,7 @@ connectDB();
 // API Routes
 app.use("/api/users", userRoutes);
 app.use("/api/profile", profileRoutes);
+app.use("/api/teammates", teammateRoutes);
 
 // Test Route
 app.get("/", (req, res) => {
