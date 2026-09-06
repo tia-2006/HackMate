@@ -6,6 +6,8 @@ const connectDB = require("./config/db");
 const userRoutes = require("./routes/userRoutes");
 const profileRoutes = require("./routes/profileRoutes");
 const teammateRoutes = require("./routes/teammateRoutes");
+const teamRoutes = require("./routes/teamRoutes");
+const { notFound, errorHandler } = require("./middleware/errorHandler");
 
 const app = express();
 
@@ -20,6 +22,7 @@ connectDB();
 app.use("/api/users", userRoutes);
 app.use("/api/profile", profileRoutes);
 app.use("/api/teammates", teammateRoutes);
+app.use("/api/teams", teamRoutes);
 
 // Test Route
 app.get("/", (req, res) => {
@@ -27,6 +30,10 @@ app.get("/", (req, res) => {
         message: "HackMate Backend is running!"
     });
 });
+
+// Error Handling Middleware (must be after all routes)
+app.use(notFound);
+app.use(errorHandler);
 
 // Port
 const PORT = process.env.PORT || 5000;

@@ -7,6 +7,11 @@ const teamSchema = new mongoose.Schema(
             required: true
         },
 
+        description: {
+            type: String,
+            default: ""
+        },
+
         hackathon: {
             type: String,
             required: true
@@ -33,6 +38,11 @@ const teamSchema = new mongoose.Schema(
         requiredSkills: {
             type: [String],
             default: []
+        },
+
+        maxMembers: {
+            type: Number,
+            default: 4
         }
     },
     {
