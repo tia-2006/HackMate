@@ -1,3 +1,4 @@
+const mongoose = require("mongoose");
 const Team = require("../models/Team");
 
 
@@ -47,7 +48,68 @@ const createTeam = async (req, res) => {
         });
     }
 };
+const updateTeam = async (req, res) => {
+    try {
+        const { id } = req.params;
 
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            return res.status(400).json({
+                message: "Invalid Team ID format"
+            });
+        }
+        const {
+            name,
+            description,
+            hackathon,
+            requiredRoles,
+            requiredSkills,
+            maxMembers
+        } = req.body;
+
+        // Find the team
+        const team = await Team.findById(id);
+
+        if (!team) {
+            return res.status(404).json({
+                message: "Team not found"
+            });
+        }
+
+        // Only the team leader can update the team
+        if (team.leader.toString() !== req.user._id.toString()) {
+            return res.status(403).json({
+                message: "Only the team leader can update this team"
+            });
+        }
+
+        // Update only the fields that were provided
+        if (name !== undefined) team.name = name;
+        if (description !== undefined) team.description = description;
+        if (hackathon !== undefined) team.hackathon = hackathon;
+        if (requiredRoles !== undefined) team.requiredRoles = requiredRoles;
+        if (requiredSkills !== undefined) team.requiredSkills = requiredSkills;
+        if (maxMembers !== undefined) team.maxMembers = maxMembers;
+
+        // Prevent maxMembers from being set below current member count
+        if (maxMembers !== undefined && maxMembers < team.members.length) {
+            return res.status(400).json({
+                message: `maxMembers cannot be less than current member count (${team.members.length})`
+            });
+        }
+
+        const updatedTeam = await team.save();
+
+        res.status(200).json({
+            message: "Team updated successfully",
+            team: updatedTeam
+        });
+    } catch (error) {
+        res.status(500).json({
+            message: "Server error",
+            error: error.message
+        });
+    }
+};
 // ==========================================
 // @desc    Get all teams (with optional filters)
 // @route   GET /api/teams
@@ -94,7 +156,15 @@ const getTeams = async (req, res) => {
 // ==========================================
 const getTeamById = async (req, res) => {
     try {
-        const team = await Team.findById(req.params.id)
+        const { id } = req.params;
+
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            return res.status(400).json({
+                message: "Invalid Team ID format"
+            });
+        }
+
+        const team = await Team.findById(id)
             .populate("leader", "name email")
             .populate("members", "name email");
 
@@ -141,9 +211,115 @@ const getMyTeams = async (req, res) => {
     }
 };
 
+// ==========================================
+// @desc    Delete a team
+// @route   DELETE /api/teams/:id
+// @access  Private (Leader only)
+// ==========================================
+const deleteTeam = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            return res.status(400).json({
+                message: "Invalid Team ID format"
+            });
+        }
+
+        const team = await Team.findById(id);
+
+        if (!team) {
+            return res.status(404).json({
+                message: "Team not found"
+            });
+        }
+
+        // Only the team leader can delete the team
+        if (team.leader.toString() !== req.user._id.toString()) {
+            return res.status(403).json({
+                message: "Only the team leader can delete this team"
+            });
+        }
+
+        await Team.findByIdAndDelete(id);
+
+        res.status(200).json({
+            message: "Team deleted successfully"
+        });
+    } catch (error) {
+        res.status(500).json({
+            message: "Server error",
+            error: error.message
+        });
+    }
+};
+
+// ==========================================
+// @desc    Leave a team
+// @route   POST /api/teams/:id/leave
+// @access  Private (Member only)
+// ==========================================
+const leaveTeam = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            return res.status(400).json({
+                message: "Invalid Team ID format"
+            });
+        }
+
+        const team = await Team.findById(id);
+
+        if (!team) {
+            return res.status(404).json({
+                message: "Team not found"
+            });
+        }
+
+        // Team leader cannot leave the team (must delete or transfer)
+        if (team.leader.toString() === req.user._id.toString()) {
+            return res.status(400).json({
+                message: "Team leader cannot leave the team. You must delete the team instead."
+            });
+        }
+
+        // Check if user is actually a member of this team
+        const isMember = team.members.some(
+            (memberId) => memberId.toString() === req.user._id.toString()
+        );
+
+        if (!isMember) {
+            return res.status(400).json({
+                message: "You are not a member of this team"
+            });
+        }
+
+        // Remove user from members array
+        team.members = team.members.filter(
+            (memberId) => memberId.toString() !== req.user._id.toString()
+        );
+
+        await team.save();
+
+        res.status(200).json({
+            message: "You have left the team successfully",
+            team
+        });
+    } catch (error) {
+        res.status(500).json({
+            message: "Server error",
+            error: error.message
+        });
+    }
+};
+
 module.exports = {
     createTeam,
     getTeams,
     getTeamById,
-    getMyTeams
+    getMyTeams, 
+    updateTeam,
+    deleteTeam,
+    leaveTeam
 };

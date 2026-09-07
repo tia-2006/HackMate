@@ -1,3 +1,4 @@
+const mongoose = require("mongoose");
 const Profile = require("../models/Profile");
 
 // ==========================================
@@ -139,7 +140,15 @@ const updateProfile = async (req, res) => {
 // ==========================================
 const getProfileByUserId = async (req, res) => {
     try {
-        const profile = await Profile.findOne({ userId: req.params.userId }).populate(
+        const { userId } = req.params;
+
+        if (!mongoose.Types.ObjectId.isValid(userId)) {
+            return res.status(400).json({
+                message: "Invalid User ID format"
+            });
+        }
+
+        const profile = await Profile.findOne({ userId }).populate(
             "userId",
             "name email"
         );
