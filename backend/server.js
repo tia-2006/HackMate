@@ -7,6 +7,7 @@ const userRoutes = require("./routes/userRoutes");
 const profileRoutes = require("./routes/profileRoutes");
 const teammateRoutes = require("./routes/teammateRoutes");
 const teamRoutes = require("./routes/teamRoutes");
+const requestRoutes = require("./routes/requestRoutes");
 const { notFound, errorHandler } = require("./middleware/errorHandler");
 
 const app = express();
@@ -23,6 +24,7 @@ app.use("/api/users", userRoutes);
 app.use("/api/profile", profileRoutes);
 app.use("/api/teammates", teammateRoutes);
 app.use("/api/teams", teamRoutes);
+app.use("/api/requests", requestRoutes);
 
 // Test Route
 app.get("/", (req, res) => {
@@ -38,6 +40,11 @@ app.use(errorHandler);
 // Port
 const PORT = process.env.PORT || 5000;
 
-app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-});
+if (require.main === module) {
+    app.listen(PORT, () => {
+        console.log(`Server running on port ${PORT}`);
+    });
+}
+
+
+module.exports = app;

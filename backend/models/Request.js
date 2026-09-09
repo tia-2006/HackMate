@@ -5,24 +5,26 @@ const requestSchema = new mongoose.Schema(
         sender: {
             type: mongoose.Schema.Types.ObjectId,
             ref: "User",
-            required: true
+            required: true,
+            alias: "senderId"
         },
 
         receiver: {
             type: mongoose.Schema.Types.ObjectId,
             ref: "User",
-            required: true
+            required: true,
+            alias: "receiverId"
         },
 
         team: {
             type: mongoose.Schema.Types.ObjectId,
             ref: "Team",
-            required: true
+            required: false
         },
 
         requestedRole: {
             type: String,
-            required: true
+            required: false
         },
 
         status: {
@@ -32,10 +34,13 @@ const requestSchema = new mongoose.Schema(
         }
     },
     {
-        timestamps: true
+        timestamps: true,
+        toJSON: { virtuals: true },
+        toObject: { virtuals: true }
     }
 );
 
 const Request = mongoose.model("Request", requestSchema);
 
 module.exports = Request;
+
