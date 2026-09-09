@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../styles/HomePage.css';
 
+
 // ─── Icons ────────────────────────────────────────────────────────────────────
 const BellIcon = () => (
   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -47,9 +48,10 @@ const MenuIcon = () => (
 );
 
 // ─── Navbar ──────────────────────────────────────────────────────────────────
-function Navbar({ onNavigateToAuth }) {
+function Navbar({ onNavigateToAuth, onNavigateToTeammates }) {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const isLoggedIn = !!localStorage.getItem('hackmate_token');
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24);
@@ -57,7 +59,13 @@ function Navbar({ onNavigateToAuth }) {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
-  const navLinks = ['Home', 'Teammates', 'Matches', 'My Team', 'Requests'];
+  const navLinks = [
+    { label: 'Home', anchor: '#home', action: null },
+    { label: 'Teammates', anchor: null, action: onNavigateToTeammates },
+    { label: 'Matches', anchor: '#features', action: null },
+    { label: 'My Team', anchor: '#features', action: null },
+    { label: 'Requests', anchor: '#features', action: null },
+  ];
 
   return (
     <nav className={`hm-navbar${scrolled ? ' scrolled' : ''}`}>
@@ -68,14 +76,17 @@ function Navbar({ onNavigateToAuth }) {
         </a>
 
         <ul className={`hm-nav-links${menuOpen ? ' open' : ''}`}>
-          {navLinks.map((label, i) => (
-            <li key={label}>
+          {navLinks.map((link, i) => (
+            <li key={link.label}>
               <a
-                href={i === 0 ? '#home' : '#features'}
+                href={link.anchor || '#'}
                 className={i === 0 ? 'active' : ''}
-                onClick={() => setMenuOpen(false)}
+                onClick={(e) => {
+                  if (link.action) { e.preventDefault(); link.action(); }
+                  setMenuOpen(false);
+                }}
               >
-                {label}
+                {link.label}
               </a>
             </li>
           ))}
@@ -85,7 +96,11 @@ function Navbar({ onNavigateToAuth }) {
           <button className="hm-icon-btn" aria-label="Notifications">
             <BellIcon />
           </button>
-          <button className="hm-icon-btn" aria-label="Account" onClick={onNavigateToAuth}>
+          <button
+            className="hm-icon-btn"
+            aria-label="Account"
+            onClick={isLoggedIn ? onNavigateToTeammates : onNavigateToAuth}
+          >
             <UserCircleIcon />
           </button>
           <button className="hm-icon-btn hm-menu-toggle" aria-label="Menu" onClick={() => setMenuOpen(o => !o)}>
@@ -282,15 +297,21 @@ function Footer() {
 // ─── Page ────────────────────────────────────────────────────────────────────
 export default function HomePage() {
   const navigate = useNavigate();
+  const isLoggedIn = !!localStorage.getItem('hackmate_token');
+
   const goToAuth = () => navigate('/auth');
+  const goToTeammates = () => navigate('/teammates');
+
+  // If logged in, primary CTA goes to /teammates; else to /auth
+  const primaryAction = isLoggedIn ? goToTeammates : goToAuth;
 
   return (
     <div className="hm-page">
-      <Navbar onNavigateToAuth={goToAuth} />
+      <Navbar onNavigateToAuth={goToAuth} onNavigateToTeammates={goToTeammates} />
       <main>
-        <HeroSection onFindTeammates={goToAuth} onCreateProfile={goToAuth} />
-        <FeaturesSection onGetStarted={goToAuth} />
-        <HowItWorksSection onGetStarted={goToAuth} />
+        <HeroSection onFindTeammates={primaryAction} onCreateProfile={goToAuth} />
+        <FeaturesSection onGetStarted={primaryAction} />
+        <HowItWorksSection onGetStarted={primaryAction} />
       </main>
       <Footer />
     </div>
