@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 // Custom SVG Icons for self-contained UI
 const UserIcon = () => (
@@ -62,12 +63,19 @@ const AlertCircleIcon = () => (
   </svg>
 );
 
+const ArrowLeftIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M19 12H5" /><path d="m12 19-7-7 7-7" />
+  </svg>
+);
+
 export default function AuthForm() {
+  const navigate = useNavigate();
   const [isRegister, setIsRegister] = useState(true);
   const [formData, setFormData] = useState({
-    name: 'Tia',
-    email: 'tia@gmail.com',
-    password: 'tia123'
+    name: '',
+    email: '',
+    password: ''
   });
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -84,9 +92,10 @@ export default function AuthForm() {
     setLoading(true);
     setApiResponse(null);
 
+    // Using relative paths — Vite proxy forwards /api/* → http://localhost:5000
     const endpoint = isRegister
-      ? 'http://localhost:5000/api/users/register'
-      : 'http://localhost:5000/api/users/login';
+      ? '/api/users/register'
+      : '/api/users/login';
 
     const payload = isRegister
       ? { name: formData.name, email: formData.email, password: formData.password }
@@ -95,9 +104,7 @@ export default function AuthForm() {
     try {
       const response = await fetch(endpoint, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       });
 
@@ -114,6 +121,8 @@ export default function AuthForm() {
 
         if (data.token) {
           localStorage.setItem('hackmate_token', data.token);
+          // Redirect to dashboard/home after short delay
+          setTimeout(() => navigate('/'), 1500);
         }
       } else {
         setApiResponse({
@@ -125,7 +134,7 @@ export default function AuthForm() {
     } catch (err) {
       setApiResponse({
         type: 'error',
-        message: 'Could not connect to server at http://localhost:5000. Ensure the backend server is running.',
+        message: 'Could not connect to server. Ensure the backend is running on port 5000.',
         errorDetail: err.message,
       });
     } finally {
@@ -140,191 +149,179 @@ export default function AuthForm() {
   };
 
   return (
-    <div className="auth-wrapper">
-      {/* Brand Header */}
-      <div className="brand-header">
-        <div className="brand-badge">
-          <span className="brand-icon">⚡</span>
-          <span className="brand-name">HackMate</span>
-        </div>
-        <h1 className="auth-title">
-          {isRegister ? 'Create Your Account' : 'Welcome Back'}
-        </h1>
-        <p className="auth-subtitle">
-          {isRegister
-            ? 'Join HackMate to connect with your hackathon team'
-            : 'Sign in to continue to your hackathon team'}
-        </p>
-      </div>
+    <div className="auth-page">
+      {/* Back to Home */}
+      <button className="auth-back-btn" onClick={() => navigate('/')}>
+        <ArrowLeftIcon />
+        Back to Home
+      </button>
 
-      {/* Main Auth Card */}
-      <div className="auth-card">
-        <form onSubmit={handleSubmit} className="auth-form">
-          {/* Full Name Field (Only in Register Mode) */}
-          {isRegister && (
+      <div className="auth-wrapper">
+        {/* Brand Header */}
+        <div className="brand-header">
+          <div className="brand-badge">
+            <span className="brand-icon">⚡</span>
+            <span className="brand-name">HackMate</span>
+          </div>
+          <h1 className="auth-title">
+            {isRegister ? 'Create Your Account' : 'Welcome Back'}
+          </h1>
+          <p className="auth-subtitle">
+            {isRegister
+              ? 'Join HackMate to connect with your hackathon team'
+              : 'Sign in to continue to your hackathon team'}
+          </p>
+        </div>
+
+        {/* Main Auth Card */}
+        <div className="auth-card">
+          <form onSubmit={handleSubmit} className="auth-form">
+            {/* Full Name Field (Only in Register Mode) */}
+            {isRegister && (
+              <div className="input-group">
+                <label className="input-label" htmlFor="name">Full Name</label>
+                <div className="input-wrapper">
+                  <span className="input-icon"><UserIcon /></span>
+                  <input
+                    id="name"
+                    name="name"
+                    type="text"
+                    required
+                    placeholder="e.g. Alex Johnson"
+                    value={formData.name}
+                    onChange={handleChange}
+                    className="form-input"
+                  />
+                </div>
+              </div>
+            )}
+
+            {/* Email Field */}
             <div className="input-group">
-              <label className="input-label" htmlFor="name">
-                Full Name
-              </label>
+              <label className="input-label" htmlFor="email">College Email</label>
               <div className="input-wrapper">
-                <span className="input-icon">
-                  <UserIcon />
-                </span>
+                <span className="input-icon"><MailIcon /></span>
                 <input
-                  id="name"
-                  name="name"
-                  type="text"
+                  id="email"
+                  name="email"
+                  type="email"
                   required
-                  placeholder="e.g. Tia"
-                  value={formData.name}
+                  placeholder="you@university.edu"
+                  value={formData.email}
                   onChange={handleChange}
                   className="form-input"
                 />
               </div>
             </div>
-          )}
 
-          {/* Email Field */}
-          <div className="input-group">
-            <label className="input-label" htmlFor="email">
-              College Email
-            </label>
-            <div className="input-wrapper">
-              <span className="input-icon">
-                <MailIcon />
-              </span>
-              <input
-                id="email"
-                name="email"
-                type="email"
-                required
-                placeholder="you@university.edu"
-                value={formData.email}
-                onChange={handleChange}
-                className="form-input"
-              />
-            </div>
-          </div>
-
-          {/* Password Field */}
-          <div className="input-group">
-            <div className="input-label-row">
-              <label className="input-label" htmlFor="password">
-                Password
-              </label>
-              {!isRegister && (
-                <a href="#forgot" className="forgot-link" onClick={(e) => e.preventDefault()}>
-                  Forgot Password?
-                </a>
-              )}
-            </div>
-            <div className="input-wrapper">
-              <span className="input-icon">
-                <LockIcon />
-              </span>
-              <input
-                id="password"
-                name="password"
-                type={showPassword ? 'text' : 'password'}
-                required
-                placeholder="••••••••"
-                value={formData.password}
-                onChange={handleChange}
-                className="form-input"
-              />
-              <button
-                type="button"
-                className="toggle-password-btn"
-                onClick={() => setShowPassword(!showPassword)}
-                aria-label={showPassword ? 'Hide password' : 'Show password'}
-              >
-                {showPassword ? <EyeOffIcon /> : <EyeIcon />}
-              </button>
-            </div>
-          </div>
-
-          {/* Submit Button */}
-          <button type="submit" className="submit-btn" disabled={loading}>
-            {loading ? (
-              <span className="btn-spinner">Processing...</span>
-            ) : isRegister ? (
-              'Create Account'
-            ) : (
-              'Sign In'
-            )}
-          </button>
-        </form>
-
-        {/* Divider */}
-        <div className="divider">
-          <span>Or continue with</span>
-        </div>
-
-        {/* Third Party Login Placeholder */}
-        <button
-          type="button"
-          className="google-btn"
-          onClick={() => alert('Google Sign In integration ready.')}
-        >
-          <GoogleIcon />
-          <span>Sign in with Google</span>
-        </button>
-
-        {/* Clean User Feedback Banner */}
-        {apiResponse && (
-          <div className={`response-banner ${apiResponse.type}`}>
-            <div className="banner-header">
-              {apiResponse.type === 'success' ? <CheckCircleIcon /> : <AlertCircleIcon />}
-              <span className="banner-title">{apiResponse.message}</span>
-            </div>
-
-            {apiResponse.type === 'success' && apiResponse.user && (
-              <div className="user-welcome-info">
-                <p className="welcome-user-text">
-                  Welcome, <strong>{apiResponse.user.name}</strong> ({apiResponse.user.email})!
-                </p>
-              </div>
-            )}
-
-            {/* Optional Collapsible Debug View */}
-            {apiResponse.data && (
-              <div className="debug-toggle-container">
-                <button
-                  type="button"
-                  className="debug-toggle-btn"
-                  onClick={() => setShowRawJson(!showRawJson)}
-                >
-                  {showRawJson ? 'Hide Backend Response Payload' : 'View Backend Response Payload'}
-                </button>
-
-                {showRawJson && (
-                  <div className="response-details">
-                    <pre>{JSON.stringify(apiResponse.data, null, 2)}</pre>
-                  </div>
+            {/* Password Field */}
+            <div className="input-group">
+              <div className="input-label-row">
+                <label className="input-label" htmlFor="password">Password</label>
+                {!isRegister && (
+                  <a href="#forgot" className="forgot-link" onClick={(e) => e.preventDefault()}>
+                    Forgot Password?
+                  </a>
                 )}
               </div>
-            )}
-          </div>
-        )}
-      </div>
+              <div className="input-wrapper">
+                <span className="input-icon"><LockIcon /></span>
+                <input
+                  id="password"
+                  name="password"
+                  type={showPassword ? 'text' : 'password'}
+                  required
+                  placeholder="••••••••"
+                  value={formData.password}
+                  onChange={handleChange}
+                  className="form-input"
+                />
+                <button
+                  type="button"
+                  className="toggle-password-btn"
+                  onClick={() => setShowPassword(!showPassword)}
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
+                >
+                  {showPassword ? <EyeOffIcon /> : <EyeIcon />}
+                </button>
+              </div>
+            </div>
 
-      {/* Switch Mode Footer */}
-      <div className="auth-footer">
-        {isRegister ? (
-          <p>
-            Already have an account?{' '}
-            <button type="button" onClick={toggleMode} className="switch-mode-btn">
-              Sign In
+            {/* Submit Button */}
+            <button type="submit" className="submit-btn" disabled={loading}>
+              {loading ? (
+                <span className="btn-spinner">Processing...</span>
+              ) : isRegister ? (
+                'Create Account'
+              ) : (
+                'Sign In'
+              )}
             </button>
-          </p>
-        ) : (
-          <p>
-            Don't have an account?{' '}
-            <button type="button" onClick={toggleMode} className="switch-mode-btn">
-              Sign Up
-            </button>
-          </p>
-        )}
+          </form>
+
+          {/* Divider */}
+          <div className="divider"><span>Or continue with</span></div>
+
+          {/* Google Sign In */}
+          <button
+            type="button"
+            className="google-btn"
+            onClick={() => alert('Google Sign In integration coming soon.')}
+          >
+            <GoogleIcon />
+            <span>Sign in with Google</span>
+          </button>
+
+          {/* API Response Banner */}
+          {apiResponse && (
+            <div className={`response-banner ${apiResponse.type}`}>
+              <div className="banner-header">
+                {apiResponse.type === 'success' ? <CheckCircleIcon /> : <AlertCircleIcon />}
+                <span className="banner-title">{apiResponse.message}</span>
+              </div>
+
+              {apiResponse.type === 'success' && apiResponse.user && (
+                <div className="user-welcome-info">
+                  <p className="welcome-user-text">
+                    Welcome, <strong>{apiResponse.user.name}</strong> ({apiResponse.user.email})!
+                  </p>
+                </div>
+              )}
+
+              {apiResponse.data && (
+                <div className="debug-toggle-container">
+                  <button
+                    type="button"
+                    className="debug-toggle-btn"
+                    onClick={() => setShowRawJson(!showRawJson)}
+                  >
+                    {showRawJson ? 'Hide Backend Response' : 'View Backend Response'}
+                  </button>
+                  {showRawJson && (
+                    <div className="response-details">
+                      <pre>{JSON.stringify(apiResponse.data, null, 2)}</pre>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* Switch Mode Footer */}
+        <div className="auth-footer">
+          {isRegister ? (
+            <p>
+              Already have an account?{' '}
+              <button type="button" onClick={toggleMode} className="switch-mode-btn">Sign In</button>
+            </p>
+          ) : (
+            <p>
+              Don't have an account?{' '}
+              <button type="button" onClick={toggleMode} className="switch-mode-btn">Sign Up</button>
+            </p>
+          )}
+        </div>
       </div>
     </div>
   );
