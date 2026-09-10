@@ -4,7 +4,8 @@ const {
     getReceivedRequests,
     getSentRequests,
     acceptRequest,
-    rejectRequest
+    rejectRequest,
+    deleteRequest
 } = require("../controllers/requestController");
 const { protect } = require("../middleware/authMiddleware");
 
@@ -16,5 +17,6 @@ router.get("/received", protect, getReceivedRequests);
 router.get("/sent", protect, getSentRequests);
 router.put("/:id/accept", protect, acceptRequest);
 router.put("/:id/reject", protect, rejectRequest);
+router.delete("/:id", protect, deleteRequest);
 
 module.exports = router;

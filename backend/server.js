@@ -8,6 +8,7 @@ const profileRoutes = require("./routes/profileRoutes");
 const teammateRoutes = require("./routes/teammateRoutes");
 const teamRoutes = require("./routes/teamRoutes");
 const requestRoutes = require("./routes/requestRoutes");
+const matchRoutes = require("./routes/matchRoutes");
 const { notFound, errorHandler } = require("./middleware/errorHandler");
 
 const app = express();
@@ -25,6 +26,7 @@ app.use("/api/profile", profileRoutes);
 app.use("/api/teammates", teammateRoutes);
 app.use("/api/teams", teamRoutes);
 app.use("/api/requests", requestRoutes);
+app.use("/api/matches", matchRoutes);
 
 // Test Route
 app.get("/", (req, res) => {

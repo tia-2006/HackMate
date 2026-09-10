@@ -295,10 +295,61 @@ const rejectRequest = async (req, res) => {
     }
 };
 
+// ==========================================
+// @desc    Delete/cancel a request
+// @route   DELETE /api/requests/:id
+// @access  Private (Sender or Receiver)
+// ==========================================
+const deleteRequest = async (req, res) => {
+    try {
+        const id = req.params.id || req.params.requestId;
+
+        // 1. Validate request ID format
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            return res.status(400).json({
+                message: "Invalid Request ID format"
+            });
+        }
+
+        // 2. Find the request
+        const request = await Request.findById(id);
+
+        if (!request) {
+            return res.status(404).json({
+                message: "Request not found"
+            });
+        }
+
+        // 3. Allow deletion only if the authenticated user is the sender OR receiver
+        if (
+            request.sender.toString() !== req.user._id.toString() &&
+            request.receiver.toString() !== req.user._id.toString()
+        ) {
+            return res.status(403).json({
+                message: "Not authorized to delete this request"
+            });
+        }
+
+        // 4. Delete using the existing Request model
+        await Request.findByIdAndDelete(id);
+
+        res.status(200).json({
+            message: "Request deleted successfully"
+        });
+    } catch (error) {
+        res.status(500).json({
+            message: "Server error",
+            error: error.message
+        });
+    }
+};
+
 module.exports = {
     sendRequest,
     getReceivedRequests,
     getSentRequests,
     acceptRequest,
-    rejectRequest
+    rejectRequest,
+    deleteRequest
 };
+
