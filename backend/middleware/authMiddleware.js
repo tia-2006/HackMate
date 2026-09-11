@@ -43,4 +43,24 @@ const protect = async (req, res, next) => {
     }
 };
 
-module.exports = { protect };
+const optionalProtect = async (req, res, next) => {
+    if (
+        req.headers.authorization &&
+        req.headers.authorization.startsWith("Bearer")
+    ) {
+        try {
+            const token = req.headers.authorization.split(" ")[1];
+            const decoded = jwt.verify(
+                token,
+                process.env.JWT_SECRET || "hackmate_secret_key"
+            );
+            const userId = decoded.userId || decoded.id;
+            req.user = await User.findById(userId).select("-password");
+        } catch (error) {
+            // Ignore invalid token for optional auth routes
+        }
+    }
+    next();
+};
+
+module.exports = { protect, optionalProtect };

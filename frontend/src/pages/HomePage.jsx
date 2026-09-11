@@ -301,17 +301,15 @@ export default function HomePage() {
 
   const goToAuth = () => navigate('/auth');
   const goToTeammates = () => navigate('/teammates');
-
-  // If logged in, primary CTA goes to /teammates; else to /auth
-  const primaryAction = isLoggedIn ? goToTeammates : goToAuth;
+  const goToProfile = () => navigate(isLoggedIn ? '/profile' : '/auth');
 
   return (
     <div className="hm-page">
       <Navbar onNavigateToAuth={goToAuth} onNavigateToTeammates={goToTeammates} />
       <main>
-        <HeroSection onFindTeammates={primaryAction} onCreateProfile={goToAuth} />
-        <FeaturesSection onGetStarted={primaryAction} />
-        <HowItWorksSection onGetStarted={primaryAction} />
+        <HeroSection onFindTeammates={goToTeammates} onCreateProfile={goToProfile} />
+        <FeaturesSection onGetStarted={goToTeammates} />
+        <HowItWorksSection onGetStarted={goToTeammates} />
       </main>
       <Footer />
     </div>

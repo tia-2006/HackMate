@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import HomePage from './pages/HomePage';
 import AuthForm from './components/AuthForm';
 import FindTeammatesPage from './pages/FindTeammatesPage';
+import ProfileFormPage from './pages/ProfileFormPage';
 import './App.css';
 
 // Guard: redirect to /auth if no token
@@ -16,11 +17,20 @@ function App() {
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/auth" element={<AuthForm />} />
+        <Route path="/teammates" element={<FindTeammatesPage />} />
         <Route
-          path="/teammates"
+          path="/profile"
           element={
             <ProtectedRoute>
-              <FindTeammatesPage />
+              <ProfileFormPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/profile/edit"
+          element={
+            <ProtectedRoute>
+              <ProfileFormPage />
             </ProtectedRoute>
           }
         />

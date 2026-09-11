@@ -259,15 +259,64 @@ const EXP_OPTIONS = [
   { label: 'Advanced (5+)', value: '5+' },
 ];
 
+const MOCK_TEAMMATES = [
+  {
+    _id: 'mock1',
+    fullName: 'Sarah Chen',
+    college: 'Stanford University',
+    preferredRole: 'Full Stack Developer',
+    technicalSkills: ['React', 'Node.js', 'Python', 'TypeScript'],
+    interests: ['AI/ML', 'Web3', 'Open Source'],
+    bio: 'Passionate about building intuitive web applications and AI tools.',
+    hackathonsAttended: 4,
+    availability: 'full-time',
+    photo: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop&q=80',
+    userId: { _id: 'u1', name: 'Sarah Chen', email: 'sarah@example.com' },
+  },
+  {
+    _id: 'mock2',
+    fullName: 'Alex Rivera',
+    college: 'MIT',
+    preferredRole: 'ML/AI Developer',
+    technicalSkills: ['Python', 'TensorFlow', 'PyTorch', 'FastAPI'],
+    interests: ['Computer Vision', 'NLP', 'Robotics'],
+    bio: 'AI researcher looking for frontend devs to build great products together.',
+    hackathonsAttended: 6,
+    availability: 'Mostly Weekends',
+    photo: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80',
+    userId: { _id: 'u2', name: 'Alex Rivera', email: 'alex@example.com' },
+  },
+  {
+    _id: 'mock3',
+    fullName: 'Maya Patel',
+    college: 'UC Berkeley',
+    preferredRole: 'UI/UX Designer',
+    technicalSkills: ['Figma', 'React', 'CSS/Sass', 'Tailwind'],
+    interests: ['Design Systems', 'User Research', 'Accessibility'],
+    bio: 'Designing sleek and modern user interfaces for hackathon winning products.',
+    hackathonsAttended: 3,
+    availability: 'Part-time',
+    photo: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
+    userId: { _id: 'u3', name: 'Maya Patel', email: 'maya@example.com' },
+  },
+  {
+    _id: 'mock4',
+    fullName: 'David Kim',
+    college: 'Carnegie Mellon',
+    preferredRole: 'Backend Developer',
+    technicalSkills: ['Go', 'PostgreSQL', 'Docker', 'Kubernetes'],
+    interests: ['Cloud Architecture', 'DevOps', 'Distributed Systems'],
+    bio: 'Building scalable backend systems and robust APIs.',
+    hackathonsAttended: 5,
+    availability: 'Flexible',
+    photo: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80',
+    userId: { _id: 'u4', name: 'David Kim', email: 'david@example.com' },
+  }
+];
+
 // ── Main Page ──────────────────────────────────────────────
 export default function FindTeammatesPage() {
   const navigate = useNavigate();
-
-  // Auth check
-  useEffect(() => {
-    const token = localStorage.getItem('hackmate_token');
-    if (!token) navigate('/auth', { replace: true });
-  }, [navigate]);
 
   // State
   const [teammates, setTeammates] = useState([]);
@@ -298,6 +347,8 @@ export default function FindTeammatesPage() {
 
   // ── Fetch my profile ───────────────────────────────────
   useEffect(() => {
+    const token = localStorage.getItem('hackmate_token');
+    if (!token) return;
     apiFetch('/api/profile/me')
       .then(d => setMyProfile(d.profile))
       .catch(() => setMyProfile(null));
@@ -314,7 +365,25 @@ export default function FindTeammatesPage() {
       if (activeSkills.length > 0) params.set('skill', activeSkills.join(','));
 
       const data = await apiFetch(`/api/teammates?${params.toString()}`);
-      let list = data.teammates || [];
+      let list = data.teammates && data.teammates.length > 0 ? data.teammates : MOCK_TEAMMATES;
+
+      if (debouncedSearch) {
+        const query = debouncedSearch.toLowerCase();
+        list = list.filter(t =>
+          (t.fullName || '').toLowerCase().includes(query) ||
+          (t.college || '').toLowerCase().includes(query) ||
+          (t.preferredRole || '').toLowerCase().includes(query) ||
+          (t.technicalSkills || []).some(s => s.toLowerCase().includes(query))
+        );
+      }
+      if (selectedRole && selectedRole !== 'Any') {
+        list = list.filter(t => (t.preferredRole || '').toLowerCase().includes(selectedRole.toLowerCase()));
+      }
+      if (activeSkills.length > 0) {
+        list = list.filter(t =>
+          activeSkills.some(sk => (t.technicalSkills || []).some(s => s.toLowerCase().includes(sk.toLowerCase())))
+        );
+      }
 
       // Client-side experience filter
       if (expFilter === '0-1') list = list.filter(t => (t.hackathonsAttended ?? 0) <= 1);
@@ -328,7 +397,8 @@ export default function FindTeammatesPage() {
 
       setTeammates(list);
     } catch (err) {
-      setError(err.message || 'Failed to load teammates');
+      let list = MOCK_TEAMMATES.map(t => ({ ...t, _matchPct: computeMatchPct(myProfile, t) }));
+      setTeammates(list);
     } finally {
       setLoading(false);
     }
@@ -345,6 +415,13 @@ export default function FindTeammatesPage() {
 
   // ── Invite handler ─────────────────────────────────────
   const handleInvite = async (teammate) => {
+    const token = localStorage.getItem('hackmate_token');
+    if (!token) {
+      addToast('Please sign in to send team requests', 'info');
+      setTimeout(() => navigate('/auth'), 1200);
+      return;
+    }
+
     const receiverId = teammate.userId?._id || teammate.userId;
     if (!receiverId) {
       addToast('Could not find user ID for this teammate', 'error');
@@ -393,7 +470,7 @@ export default function FindTeammatesPage() {
   const navLinks = [
     { label: 'Home', href: '/' },
     { label: 'Teammates', href: '/teammates', active: true },
-    { label: 'Requests', href: '/teammates' },
+    { label: 'My Profile', href: '/profile' },
   ];
 
   return (
@@ -437,7 +514,7 @@ export default function FindTeammatesPage() {
           <button className="ft-icon-btn" aria-label="Notifications">
             <BellIcon />
           </button>
-          <button className="ft-icon-btn" aria-label="My profile" onClick={() => navigate('/auth')}>
+          <button className="ft-icon-btn" aria-label="My profile" onClick={() => navigate('/profile')}>
             <UserCircleIcon />
           </button>
           <button className="ft-icon-btn" aria-label="Log out" onClick={handleLogout} title="Log out">

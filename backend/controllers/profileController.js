@@ -30,11 +30,17 @@ const createProfile = async (req, res) => {
             });
         }
 
-        // Check if profile already exists for this user
-        const existingProfile = await Profile.findOne({ userId: req.user._id });
+        // Check if profile already exists for this user - update if found
+        let existingProfile = await Profile.findOne({ userId: req.user._id });
         if (existingProfile) {
-            return res.status(400).json({
-                message: "Profile already exists for this user. Use PUT /api/profile to update."
+            const updatedProfile = await Profile.findOneAndUpdate(
+                { userId: req.user._id },
+                { $set: req.body },
+                { new: true, runValidators: true }
+            );
+            return res.status(200).json({
+                message: "Profile updated successfully",
+                profile: updatedProfile
             });
         }
 

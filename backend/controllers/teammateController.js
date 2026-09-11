@@ -9,10 +9,8 @@ const getTeammates = async (req, res) => {
     try {
         const { role, skill, college, interest, search } = req.query;
 
-        // Base query: always exclude the currently logged-in user
-        const query = {
-            userId: { $ne: req.user._id }
-        };
+        // Base query: exclude current user if logged in
+        const query = req.user ? { userId: { $ne: req.user._id } } : {};
 
         // 🎯 1. Filter by Preferred Role
         if (role) {
