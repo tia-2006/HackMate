@@ -48,7 +48,7 @@ const MenuIcon = () => (
 );
 
 // ─── Navbar ──────────────────────────────────────────────────────────────────
-function Navbar({ onNavigateToAuth, onNavigateToTeammates }) {
+function Navbar({ onNavigateToAuth, onNavigateToTeammates, onNavigateToTeam }) {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const isLoggedIn = !!localStorage.getItem('hackmate_token');
@@ -63,7 +63,7 @@ function Navbar({ onNavigateToAuth, onNavigateToTeammates }) {
     { label: 'Home', anchor: '#home', action: null },
     { label: 'Teammates', anchor: null, action: onNavigateToTeammates },
     { label: 'Matches', anchor: '#features', action: null },
-    { label: 'My Team', anchor: '#features', action: null },
+    { label: 'My Team', anchor: null, action: onNavigateToTeam },
     { label: 'Requests', anchor: '#features', action: null },
   ];
 
@@ -305,7 +305,7 @@ export default function HomePage() {
 
   return (
     <div className="hm-page">
-      <Navbar onNavigateToAuth={goToAuth} onNavigateToTeammates={goToTeammates} />
+      <Navbar onNavigateToAuth={goToAuth} onNavigateToTeammates={goToTeammates} onNavigateToTeam={() => navigate('/team')} />
       <main>
         <HeroSection onFindTeammates={goToTeammates} onCreateProfile={goToProfile} />
         <FeaturesSection onGetStarted={goToTeammates} />

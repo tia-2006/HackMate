@@ -3,6 +3,8 @@ import HomePage from './pages/HomePage';
 import AuthForm from './components/AuthForm';
 import FindTeammatesPage from './pages/FindTeammatesPage';
 import ProfileFormPage from './pages/ProfileFormPage';
+import TeamDashboardPage from './pages/TeamDashboardPage';
+import BuildTeamPage from './pages/BuildTeamPage';
 import './App.css';
 
 // Guard: redirect to /auth if no token
@@ -18,6 +20,13 @@ function App() {
         <Route path="/" element={<HomePage />} />
         <Route path="/auth" element={<AuthForm />} />
         <Route path="/teammates" element={<FindTeammatesPage />} />
+        
+        {/* Team Routes */}
+        <Route path="/team" element={<TeamDashboardPage />} />
+        <Route path="/team/dashboard" element={<TeamDashboardPage />} />
+        <Route path="/team/build" element={<BuildTeamPage />} />
+        <Route path="/build-team" element={<BuildTeamPage />} />
+
         <Route
           path="/profile"
           element={
