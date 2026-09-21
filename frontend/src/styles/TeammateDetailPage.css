@@ -1,20 +1,20 @@
 /* ==========================================================================
-   HackMate - Teammate Profile Detail Page Styles (Unified Theme)
+   HackMate - Teammate Profile Detail Page Styles (Night Theme)
    ========================================================================== */
 
 .tp-page {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background-color: #f8fafc;
-  color: #0f172a;
+  background-color: #0a0d14;
+  color: #f1f5f9;
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
 
 /* ── Top Bar ───────────────────────────────────────────────────────────── */
 .tp-topbar {
-  background: #ffffff;
-  border-bottom: 1px solid #e2e8f0;
+  background: #111520;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   height: 64px;
   display: flex;
   align-items: center;
@@ -36,7 +36,7 @@
 .tp-brand {
   font-size: 1.35rem;
   font-weight: 800;
-  color: #0f172a;
+  color: #f1f5f9;
   text-decoration: none;
   letter-spacing: -0.02em;
   cursor: pointer;
@@ -55,7 +55,7 @@
   position: relative;
   font-size: 0.93rem;
   font-weight: 500;
-  color: #475569;
+  color: #94a3b8;
   text-decoration: none;
   padding: 20px 0;
   transition: color 0.15s ease;
@@ -63,11 +63,11 @@
 }
 
 .tp-nav-link:hover {
-  color: #0f172a;
+  color: #f1f5f9;
 }
 
 .tp-nav-link.active {
-  color: #0f172a;
+  color: #f1f5f9;
   font-weight: 600;
 }
 
@@ -78,7 +78,7 @@
   left: 0;
   right: 0;
   height: 2.5px;
-  background-color: #2563eb;
+  background-color: #6366f1;
   border-radius: 2px 2px 0 0;
 }
 
@@ -100,15 +100,15 @@
 
 /* ── Top Header Profile Card ───────────────────────────────────────────── */
 .tp-profile-card {
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
+  background: #161c2e;
+  border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 16px;
   padding: 2.5rem 2.5rem;
   display: flex;
   align-items: center;
   gap: 2rem;
   margin-bottom: 2rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45);
 }
 
 .tp-avatar-wrapper {
@@ -123,15 +123,15 @@
   height: 100%;
   border-radius: 50%;
   object-fit: cover;
-  border: 3px solid #ffffff;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  border: 3px solid #161c2e;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
 .tp-verified-badge {
   position: absolute;
   bottom: 4px;
   right: 4px;
-  background: #2563eb;
+  background: #6366f1;
   color: #ffffff;
   width: 24px;
   height: 24px;
@@ -139,7 +139,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 2px solid #ffffff;
+  border: 2px solid #161c2e;
   font-size: 12px;
 }
 
@@ -152,14 +152,14 @@
 .tp-profile-name {
   font-size: 2.2rem;
   font-weight: 800;
-  color: #0f172a;
+  color: #f1f5f9;
   letter-spacing: -0.025em;
   margin: 0;
 }
 
 .tp-profile-college {
   font-size: 1.05rem;
-  color: #475569;
+  color: #94a3b8;
   display: flex;
   align-items: center;
   gap: 6px;
@@ -174,8 +174,8 @@
 }
 
 .tp-role-pill {
-  background-color: #eff6ff;
-  color: #1d4ed8;
+  background-color: rgba(99, 102, 241, 0.15);
+  color: #818cf8;
   font-size: 0.85rem;
   font-weight: 600;
   padding: 5px 14px;
@@ -193,18 +193,18 @@
 }
 
 .tp-card {
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
+  background: #161c2e;
+  border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 16px;
   padding: 1.75rem;
   margin-bottom: 2rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45);
 }
 
 .tp-card-title {
   font-size: 1.15rem;
   font-weight: 700;
-  color: #0f172a;
+  color: #f1f5f9;
   display: flex;
   align-items: center;
   gap: 10px;
@@ -214,7 +214,7 @@
 .tp-text {
   font-size: 0.95rem;
   line-height: 1.65;
-  color: #334155;
+  color: #cbd5e1;
   margin: 0;
 }
 
@@ -222,7 +222,7 @@
 .tp-section-subtitle {
   font-size: 0.75rem;
   font-weight: 700;
-  color: #64748b;
+  color: #94a3b8;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   margin: 1.25rem 0 0.6rem 0;
@@ -239,8 +239,8 @@
 }
 
 .tp-skill-tag {
-  background: #eff6ff;
-  color: #1d4ed8;
+  background: rgba(99, 102, 241, 0.15);
+  color: #818cf8;
   font-size: 0.86rem;
   font-weight: 500;
   padding: 6px 14px;
@@ -248,14 +248,14 @@
 }
 
 .tp-skill-tag.non-tech {
-  background: #f1f5f9;
-  color: #334155;
+  background: rgba(255, 255, 255, 0.06);
+  color: #94a3b8;
 }
 
 /* Previous Projects */
 .tp-project-card {
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
+  background: #111520;
+  border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 12px;
   padding: 1.25rem;
   margin-bottom: 1rem;
@@ -281,8 +281,8 @@
 .tp-project-icon-box {
   width: 44px;
   height: 44px;
-  background: #0f172a;
-  color: #ffffff;
+  background: rgba(99, 102, 241, 0.2);
+  color: #818cf8;
   border-radius: 10px;
   display: flex;
   align-items: center;
@@ -291,19 +291,20 @@
 }
 
 .tp-project-icon-box.blue {
-  background: #2563eb;
+  background: rgba(34, 211, 238, 0.2);
+  color: #22d3ee;
 }
 
 .tp-project-name {
   font-size: 1.1rem;
   font-weight: 700;
-  color: #0f172a;
+  color: #f1f5f9;
   margin: 0;
 }
 
 .tp-project-tag {
-  background: #f1f5f9;
-  color: #64748b;
+  background: rgba(255, 255, 255, 0.06);
+  color: #94a3b8;
   font-size: 0.78rem;
   font-weight: 600;
   padding: 4px 10px;
@@ -312,20 +313,20 @@
 
 .tp-project-desc {
   font-size: 0.9rem;
-  color: #475569;
+  color: #94a3b8;
   margin: 0.5rem 0 0.5rem 0;
 }
 
 .tp-winner-badge {
   font-size: 0.8rem;
   font-weight: 600;
-  color: #475569;
+  color: #818cf8;
 }
 
 /* ── Compatibility Card ────────────────────────────────────────────────── */
 .tp-card.compatibility {
-  background: linear-gradient(180deg, #f0f9ff 0%, #ffffff 100%);
-  border: 1.5px solid #38bdf8;
+  background: linear-gradient(180deg, rgba(99, 102, 241, 0.12) 0%, #161c2e 100%);
+  border: 1.5px solid rgba(99, 102, 241, 0.35);
 }
 
 .tp-score-circle-wrapper {
@@ -340,24 +341,24 @@
   width: 120px;
   height: 120px;
   border-radius: 50%;
-  border: 8px solid #005d7f;
+  border: 8px solid #22d3ee;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 14px rgba(0, 93, 127, 0.15);
+  box-shadow: 0 4px 20px rgba(34, 211, 238, 0.2);
 }
 
 .tp-score-val {
   font-size: 1.9rem;
   font-weight: 800;
-  color: #0f172a;
+  color: #f1f5f9;
 }
 
 .tp-score-lbl {
   font-size: 0.65rem;
   font-weight: 800;
-  color: #005d7f;
+  color: #22d3ee;
   letter-spacing: 0.05em;
   text-transform: uppercase;
 }
@@ -365,7 +366,7 @@
 .tp-why-title {
   font-size: 0.9rem;
   font-weight: 700;
-  color: #0f172a;
+  color: #f1f5f9;
   margin-bottom: 0.75rem;
 }
 
@@ -383,12 +384,12 @@
   align-items: flex-start;
   gap: 8px;
   font-size: 0.88rem;
-  color: #334155;
+  color: #cbd5e1;
   line-height: 1.45;
 }
 
 .tp-why-icon {
-  color: #2563eb;
+  color: #818cf8;
   font-weight: bold;
   flex-shrink: 0;
   margin-top: 2px;
@@ -396,7 +397,7 @@
 
 /* ── Availability Card ─────────────────────────────────────────────────── */
 .tp-status-box {
-  background: #eff6ff;
+  background: rgba(99, 102, 241, 0.15);
   border-radius: 12px;
   padding: 1rem;
   display: flex;
@@ -408,7 +409,7 @@
 .tp-status-dot {
   width: 10px;
   height: 10px;
-  background-color: #2563eb;
+  background-color: #22d3ee;
   border-radius: 50%;
   flex-shrink: 0;
 }
@@ -416,18 +417,18 @@
 .tp-status-title {
   font-weight: 700;
   font-size: 0.95rem;
-  color: #0f172a;
+  color: #f1f5f9;
 }
 
 .tp-status-sub {
   font-size: 0.82rem;
-  color: #64748b;
+  color: #94a3b8;
 }
 
 .tp-commit-label {
   font-size: 0.72rem;
   font-weight: 700;
-  color: #64748b;
+  color: #94a3b8;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   margin-bottom: 4px;
@@ -436,13 +437,13 @@
 .tp-commit-val {
   font-size: 1.15rem;
   font-weight: 800;
-  color: #0f172a;
+  color: #f1f5f9;
   margin-bottom: 0.5rem;
 }
 
 .tp-commit-sub {
   font-size: 0.88rem;
-  color: #475569;
+  color: #cbd5e1;
   margin: 0;
 }
 
@@ -451,9 +452,9 @@
   position: fixed;
   bottom: 2rem;
   right: 2.5rem;
-  background-color: #0f172a;
+  background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
   color: #ffffff;
-  border: 1px solid #1e293b;
+  border: none;
   padding: 14px 28px;
   border-radius: 30px;
   font-size: 1rem;
@@ -462,26 +463,25 @@
   align-items: center;
   gap: 10px;
   cursor: pointer;
-  box-shadow: 0 10px 25px rgba(15, 23, 42, 0.25);
+  box-shadow: 0 10px 25px rgba(99, 102, 241, 0.4);
   z-index: 1000;
   transition: all 0.2s ease;
 }
 
 .tp-invite-float-btn:hover {
-  background-color: #1e293b;
+  background: linear-gradient(135deg, #4f46e5 0%, #4338ca 100%);
   transform: translateY(-2px);
-  box-shadow: 0 14px 30px rgba(15, 23, 42, 0.35);
+  box-shadow: 0 14px 30px rgba(99, 102, 241, 0.5);
 }
 
 .tp-invite-float-btn.invited {
-  background-color: #166534;
-  border-color: #166534;
+  background: #10b981;
 }
 
 /* Footer */
 .tp-footer {
-  background: #ffffff;
-  border-top: 1px solid #e2e8f0;
+  background: #111520;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
   padding: 1.75rem 2rem;
   margin-top: auto;
 }

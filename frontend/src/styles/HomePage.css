@@ -8,33 +8,33 @@
 /* ── Reset ───────────────────────────────────── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-/* ── Tokens (mirrors HackMate Light Theme vars) ─── */
+/* ── Tokens (mirrors HackMate Night Theme vars) ─── */
 :root {
-  --hm-bg:        #f8fafc;
-  --hm-surface:   #ffffff;
-  --hm-card:      #ffffff;
-  --hm-card-h:    #f8fafc;
-  --hm-border:    #e2e8f0;
-  --hm-border-g:  rgba(37,99,235,0.25);
+  --hm-bg:        #0a0d14;
+  --hm-surface:   #111520;
+  --hm-card:      #161c2e;
+  --hm-card-h:    #1c2438;
+  --hm-border:    rgba(255,255,255,0.08);
+  --hm-border-g:  rgba(99,102,241,0.35);
 
-  --hm-primary:   #2563eb;
-  --hm-primary-l: #1d4ed8;
-  --hm-accent:    #0284c7;
-  --hm-amber:     #d97706;
-  --hm-violet:    #7c3aed;
-  --hm-green:     #166534;
+  --hm-primary:   #6366f1;
+  --hm-primary-l: #818cf8;
+  --hm-accent:    #22d3ee;
+  --hm-amber:     #f59e0b;
+  --hm-violet:    #a78bfa;
+  --hm-green:     #10b981;
 
-  --hm-ink:       #0f172a;
-  --hm-ink-2:     #334155;
-  --hm-ink-3:     #64748b;
-  --hm-ink-4:     #94a3b8;
+  --hm-ink:       #f1f5f9;
+  --hm-ink-2:     #cbd5e1;
+  --hm-ink-3:     #94a3b8;
+  --hm-ink-4:     #64748b;
 
   --hm-radius:    16px;
   --hm-radius-lg: 20px;
   --hm-radius-xl: 28px;
 
-  --hm-shadow:    0 4px 16px rgba(0,0,0,0.05);
-  --hm-shadow-lg: 0 10px 30px rgba(0,0,0,0.08);
+  --hm-shadow:    0 8px 32px rgba(0,0,0,0.55);
+  --hm-shadow-lg: 0 20px 60px rgba(0,0,0,0.65);
   --hm-font:      'Inter', system-ui, sans-serif;
   --hm-navbar-h:  64px;
   --hm-transition: all 0.22s cubic-bezier(0.4,0,0.2,1);

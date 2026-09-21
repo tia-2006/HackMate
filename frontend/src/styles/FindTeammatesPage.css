@@ -6,22 +6,22 @@
 
 /* ── Root / Variables ─────────────────────────────────────── */
 :root {
-  --ft-bg:          #f8fafc;
-  --ft-surface:     #ffffff;
-  --ft-card:        #ffffff;
-  --ft-card-hover:  #f8fafc;
-  --ft-border:      #e2e8f0;
-  --ft-border-glow: rgba(37,99,235,0.25);
+  --ft-bg:          #0a0d14;
+  --ft-surface:     #111520;
+  --ft-card:        #161c2e;
+  --ft-card-hover:  #1c2438;
+  --ft-border:      rgba(255,255,255,0.08);
+  --ft-border-glow: rgba(99,102,241,0.35);
 
-  --ft-primary:     #2563eb;
-  --ft-primary-lt:  #1d4ed8;
-  --ft-accent:      #0284c7;
-  --ft-amber:       #d97706;
-  --ft-green:       #166534;
+  --ft-primary:     #6366f1;
+  --ft-primary-lt:  #818cf8;
+  --ft-accent:      #22d3ee;
+  --ft-amber:       #f59e0b;
+  --ft-green:       #10b981;
   --ft-red:         #ef4444;
 
-  --ft-text:        #0f172a;
-  --ft-text-2:      #475569;
+  --ft-text:        #f1f5f9;
+  --ft-text-2:      #94a3b8;
   --ft-text-3:      #64748b;
 
   --ft-radius-sm:   8px;
@@ -29,8 +29,8 @@
   --ft-radius-lg:   20px;
   --ft-radius-xl:   28px;
 
-  --ft-shadow:      0 1px 3px rgba(0,0,0,0.05);
-  --ft-shadow-card: 0 4px 12px rgba(0,0,0,0.05);
+  --ft-shadow:      0 8px 32px rgba(0,0,0,0.45);
+  --ft-shadow-card: 0 12px 36px rgba(0,0,0,0.55);
   --ft-transition:  all 0.22s cubic-bezier(0.4,0,0.2,1);
 }
 

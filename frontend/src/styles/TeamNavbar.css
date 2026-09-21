@@ -1,15 +1,15 @@
 /* ============================================================
-   TeamNavbar.css — HackMate Modern Navbar
+   TeamNavbar.css — HackMate Modern Navbar (Night Theme)
    ============================================================ */
 
 .hm-top-navbar {
   position: sticky;
   top: 0;
   z-index: 999;
-  background: #ffffff;
-  border-bottom: 1px solid #e2e8f0;
+  background: #111520;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   width: 100%;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
 }
 
 .hm-navbar-container {
@@ -35,7 +35,7 @@
   font-size: 1.35rem;
   font-weight: 800;
   letter-spacing: -0.03em;
-  color: #0f172a;
+  color: #f1f5f9;
 }
 
 /* Center Nav Menu */
@@ -63,18 +63,18 @@
   align-items: center;
   font-size: 0.95rem;
   font-weight: 500;
-  color: #475569;
+  color: #94a3b8;
   text-decoration: none;
   padding: 8px 2px;
   transition: color 0.15s ease;
 }
 
 .hm-nav-link:hover {
-  color: #0f172a;
+  color: #f1f5f9;
 }
 
 .hm-nav-link.active {
-  color: #0f172a;
+  color: #f1f5f9;
   font-weight: 600;
 }
 
@@ -84,7 +84,7 @@
   left: 0;
   right: 0;
   height: 2.5px;
-  background: #2563eb;
+  background: #6366f1;
   border-radius: 2px;
 }
 
@@ -98,10 +98,10 @@
 /* Sub-view Switcher Pill */
 .hm-view-pill-toggle {
   display: flex;
-  background: #f1f5f9;
+  background: #161c2e;
   padding: 3px;
   border-radius: 999px;
-  border: 1px solid #e2e8f0;
+  border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .hm-view-toggle-btn {
@@ -110,20 +110,20 @@
   padding: 6px 14px;
   font-size: 0.8rem;
   font-weight: 600;
-  color: #64748b;
+  color: #94a3b8;
   border-radius: 999px;
   cursor: pointer;
   transition: all 0.15s ease;
 }
 
 .hm-view-toggle-btn.active {
-  background: #ffffff;
-  color: #0f172a;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  background: #232d46;
+  color: #f1f5f9;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
 }
 
 .hm-view-toggle-btn:hover:not(.active) {
-  color: #0f172a;
+  color: #f1f5f9;
 }
 
 /* Bell Icon */
@@ -141,14 +141,14 @@
   border-radius: 50%;
   border: 1px solid transparent;
   background: transparent;
-  color: #475569;
+  color: #94a3b8;
   cursor: pointer;
   transition: background 0.15s ease, color 0.15s ease;
 }
 
 .hm-icon-circle-btn:hover {
-  background: #f1f5f9;
-  color: #0f172a;
+  background: rgba(255, 255, 255, 0.08);
+  color: #f1f5f9;
 }
 
 .hm-bell-dot {
@@ -159,7 +159,7 @@
   height: 7px;
   background: #ef4444;
   border-radius: 50%;
-  border: 1.5px solid #ffffff;
+  border: 1.5px solid #111520;
 }
 
 /* Notifications Dropdown */
@@ -168,10 +168,10 @@
   top: calc(100% + 10px);
   right: 0;
   width: 320px;
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
+  background: #161c2e;
+  border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 14px;
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
   padding: 12px;
   display: flex;
   flex-direction: column;
@@ -183,9 +183,9 @@
 .hm-dropdown-header {
   font-size: 0.85rem;
   font-weight: 700;
-  color: #0f172a;
+  color: #f1f5f9;
   padding: 4px 6px 8px;
-  border-bottom: 1px solid #f1f5f9;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .hm-dropdown-item {
@@ -195,8 +195,8 @@
   padding: 8px;
   border-radius: 8px;
   font-size: 0.82rem;
-  color: #334155;
-  background: #f8fafc;
+  color: #cbd5e1;
+  background: #111520;
   line-height: 1.4;
 }
 
@@ -205,14 +205,14 @@
   font-weight: 700;
   padding: 2px 6px;
   border-radius: 4px;
-  background: #dbeafe;
-  color: #1d4ed8;
+  background: rgba(99, 102, 241, 0.2);
+  color: #818cf8;
   flex-shrink: 0;
 }
 
 .hm-dropdown-tag.info {
-  background: #fef3c7;
-  color: #b45309;
+  background: rgba(245, 158, 11, 0.2);
+  color: #fbbf24;
 }
 
 /* User Avatar Button */
@@ -230,7 +230,7 @@
 
 .hm-user-avatar-btn:hover {
   transform: scale(1.05);
-  box-shadow: 0 0 0 2px #2563eb;
+  box-shadow: 0 0 0 2px #6366f1;
 }
 
 .hm-user-avatar-img {
@@ -238,14 +238,14 @@
   height: 38px;
   border-radius: 50%;
   object-fit: cover;
-  border: 1.5px solid #e2e8f0;
+  border: 1.5px solid rgba(255, 255, 255, 0.15);
 }
 
 .hm-user-avatar-fallback {
   width: 38px;
   height: 38px;
   border-radius: 50%;
-  background: #0f172a;
+  background: #6366f1;
   color: #ffffff;
   font-size: 0.85rem;
   font-weight: 700;

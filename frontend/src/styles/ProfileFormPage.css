@@ -1,28 +1,28 @@
-/* ── ProfileFormPage Styles (Light Theme) ───────────────────── */
+/* ── ProfileFormPage Styles (Night Theme) ───────────────────── */
 
 :root {
-  --pf-bg: #f8fafc;
-  --pf-surface: #ffffff;
-  --pf-card-bg: #ffffff;
-  --pf-card-hover: #f8fafc;
-  --pf-border: #e2e8f0;
-  --pf-border-glow: rgba(37, 99, 235, 0.25);
+  --pf-bg: #0a0d14;
+  --pf-surface: #111520;
+  --pf-card-bg: #161c2e;
+  --pf-card-hover: #1c2438;
+  --pf-border: rgba(255, 255, 255, 0.08);
+  --pf-border-glow: rgba(99, 102, 241, 0.35);
   
-  --pf-text-primary: #0f172a;
-  --pf-text-secondary: #475569;
+  --pf-text-primary: #f1f5f9;
+  --pf-text-secondary: #94a3b8;
   --pf-text-muted: #64748b;
   
-  --pf-primary: #2563eb;
-  --pf-primary-hover: #1d4ed8;
-  --pf-accent: #0284c7;
-  --pf-accent-light: #eff6ff;
+  --pf-primary: #6366f1;
+  --pf-primary-hover: #4f46e5;
+  --pf-accent: #22d3ee;
+  --pf-accent-light: rgba(99, 102, 241, 0.15);
   
   --pf-radius-lg: 20px;
   --pf-radius-md: 12px;
   --pf-radius-sm: 8px;
   
-  --pf-shadow-sm: 0 4px 20px rgba(0, 0, 0, 0.04);
-  --pf-shadow-md: 0 8px 32px rgba(0, 0, 0, 0.06);
+  --pf-shadow-sm: 0 4px 20px rgba(0, 0, 0, 0.45);
+  --pf-shadow-md: 0 8px 32px rgba(0, 0, 0, 0.55);
 }
 
 .pf-page {
