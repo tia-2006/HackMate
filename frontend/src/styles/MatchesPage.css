@@ -1,0 +1,526 @@
+/* ==========================================================================
+   HackMate - Matches Page Styles (Recommended Teammates Design)
+   ========================================================================== */
+
+.mt-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: #f8fafc;
+  color: #0f172a;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+/* ── Header Topbar ──────────────────────────────────────────────────────── */
+.mt-topbar {
+  background: #ffffff;
+  border-bottom: 1px solid #e2e8f0;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  padding: 0 2rem;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.mt-topbar-container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.mt-brand {
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: #0f172a;
+  text-decoration: none;
+  letter-spacing: -0.02em;
+  cursor: pointer;
+}
+
+.mt-nav-menu {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.mt-nav-link {
+  position: relative;
+  font-size: 0.93rem;
+  font-weight: 500;
+  color: #475569;
+  text-decoration: none;
+  padding: 20px 0;
+  transition: color 0.15s ease;
+  cursor: pointer;
+}
+
+.mt-nav-link:hover {
+  color: #0f172a;
+}
+
+.mt-nav-link.active {
+  color: #0f172a;
+  font-weight: 600;
+}
+
+.mt-nav-link.active::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 2.5px;
+  background-color: #2563eb;
+  border-radius: 2px 2px 0 0;
+}
+
+.mt-topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+/* ── Main Section ───────────────────────────────────────────────────────── */
+.mt-main {
+  flex: 1;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2.5rem 2rem 4rem 2rem;
+}
+
+.mt-header {
+  margin-bottom: 2.5rem;
+}
+
+.mt-title {
+  font-size: 2.25rem;
+  font-weight: 800;
+  color: #0f172a;
+  letter-spacing: -0.025em;
+  margin: 0 0 0.5rem 0;
+}
+
+.mt-subtitle {
+  font-size: 1rem;
+  color: #64748b;
+  margin: 0;
+  max-width: 600px;
+  line-height: 1.5;
+}
+
+/* ── Grid Container ─────────────────────────────────────────────────────── */
+.mt-matches-layout {
+  display: grid;
+  grid-template-columns: 1.6fr 1fr;
+  gap: 2rem;
+  align-items: start;
+}
+
+/* ── Large Featured Teammate Card ────────────────────────────────────────── */
+.mt-featured-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  overflow: hidden;
+  display: flex;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+}
+
+.mt-featured-banner {
+  width: 260px;
+  flex-shrink: 0;
+  position: relative;
+  background: #0f172a;
+  display: flex;
+  flex-direction: column;
+}
+
+.mt-featured-img {
+  width: 100%;
+  height: 50%;
+  object-fit: cover;
+}
+
+.mt-badge-looking {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(4px);
+  color: #0f172a;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  z-index: 2;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.mt-badge-looking::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  background-color: #10b981;
+  border-radius: 50%;
+}
+
+.mt-featured-content {
+  flex: 1;
+  padding: 1.75rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.mt-featured-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 1.25rem;
+}
+
+.mt-featured-name {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0 0 4px 0;
+}
+
+.mt-featured-sub {
+  font-size: 0.88rem;
+  color: #64748b;
+  margin: 0;
+}
+
+/* Score Ring */
+.mt-score-ring-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.mt-score-ring {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: 3.5px solid #005d7f;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 0.95rem;
+  color: #0f172a;
+}
+
+.mt-score-ring-lbl {
+  font-size: 0.65rem;
+  color: #64748b;
+  font-weight: 600;
+  margin-top: 3px;
+}
+
+/* Why It Matches Blue Box */
+.mt-why-box {
+  background-color: #eff6ff;
+  border-radius: 12px;
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.25rem;
+}
+
+.mt-why-head {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #1d4ed8;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+
+.mt-why-text {
+  font-size: 0.86rem;
+  color: #334155;
+  margin: 0 0 10px 0;
+  line-height: 1.4;
+}
+
+/* Comparison Bar */
+.mt-compare-pill {
+  background: #ffffff;
+  border: 1px solid #dbeafe;
+  border-radius: 8px;
+  padding: 8px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.mt-compare-col {
+  text-align: center;
+}
+
+.mt-compare-who {
+  font-size: 0.68rem;
+  color: #64748b;
+  margin-bottom: 2px;
+}
+
+.mt-compare-val {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.mt-compare-arrow {
+  color: #94a3b8;
+  font-size: 0.9rem;
+}
+
+/* Skill Chips */
+.mt-chips-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 1.5rem;
+}
+
+.mt-chip {
+  background-color: #eff6ff;
+  color: #1d4ed8;
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 5px 14px;
+  border-radius: 16px;
+}
+
+.mt-chip.more {
+  background-color: #f1f5f9;
+  color: #64748b;
+}
+
+/* Action Buttons */
+.mt-action-btns {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.mt-btn-primary-dark {
+  flex: 1;
+  background-color: #0f172a;
+  color: #ffffff;
+  border: 1px solid #0f172a;
+  padding: 10px 18px;
+  border-radius: 8px;
+  font-size: 0.88rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  text-align: center;
+}
+
+.mt-btn-primary-dark:hover {
+  background-color: #1e293b;
+}
+
+.mt-btn-outline {
+  background-color: #ffffff;
+  color: #0f172a;
+  border: 1px solid #d1d5db;
+  padding: 10px 18px;
+  border-radius: 8px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  text-align: center;
+}
+
+.mt-btn-outline:hover {
+  background-color: #f8fafc;
+  border-color: #9ca3af;
+}
+
+/* ── Compact Teammate Card ──────────────────────────────────────────────── */
+.mt-compact-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 1.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+}
+
+.mt-compact-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 1rem;
+}
+
+.mt-compact-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.mt-compact-name {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0 0 2px 0;
+}
+
+.mt-compact-sub {
+  font-size: 0.82rem;
+  color: #64748b;
+  margin: 0;
+}
+
+.mt-compact-score-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 1rem;
+}
+
+.mt-compact-score-ring {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: 3px solid #0284c7;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.78rem;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.mt-compact-score-label {
+  font-size: 0.82rem;
+  color: #64748b;
+  font-weight: 600;
+}
+
+.mt-compact-why-box {
+  background-color: #eff6ff;
+  border-radius: 12px;
+  padding: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.mt-compact-why-tag {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #1d4ed8;
+  margin-bottom: 6px;
+}
+
+.mt-compact-why-desc {
+  font-size: 0.85rem;
+  color: #334155;
+  margin: 0;
+  line-height: 1.4;
+}
+
+.mt-btn-full-outline {
+  width: 100%;
+  background-color: #f1f5f9;
+  color: #0f172a;
+  border: 1px solid #e2e8f0;
+  padding: 10px;
+  border-radius: 8px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  text-align: center;
+}
+
+.mt-btn-full-outline:hover {
+  background-color: #e2e8f0;
+}
+
+/* ── Footer ────────────────────────────────────────────────────────────── */
+.mt-footer {
+  background: #ffffff;
+  border-top: 1px solid #e2e8f0;
+  padding: 1.75rem 2rem;
+  margin-top: auto;
+}
+
+.mt-footer-container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.mt-footer-left {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.mt-footer-brand {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.mt-footer-copy {
+  font-size: 0.85rem;
+  color: #64748b;
+}
+
+.mt-footer-nav {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.mt-footer-nav a {
+  font-size: 0.88rem;
+  color: #64748b;
+  text-decoration: none;
+}
+
+.mt-footer-nav a:hover {
+  color: #0f172a;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+  .mt-matches-layout {
+    grid-template-columns: 1fr;
+  }
+  .mt-featured-card {
+    flex-direction: column;
+  }
+  .mt-featured-banner {
+    width: 100%;
+    height: 180px;
+  }
+  .mt-featured-img {
+    height: 100%;
+  }
+}

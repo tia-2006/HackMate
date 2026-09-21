@@ -1,0 +1,511 @@
+/* ==========================================================================
+   HackMate - Teammate Profile Detail Page Styles (Unified Theme)
+   ========================================================================== */
+
+.tp-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: #f8fafc;
+  color: #0f172a;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+/* ── Top Bar ───────────────────────────────────────────────────────────── */
+.tp-topbar {
+  background: #ffffff;
+  border-bottom: 1px solid #e2e8f0;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  padding: 0 2rem;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.tp-topbar-container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.tp-brand {
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: #0f172a;
+  text-decoration: none;
+  letter-spacing: -0.02em;
+  cursor: pointer;
+}
+
+.tp-nav-menu {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.tp-nav-link {
+  position: relative;
+  font-size: 0.93rem;
+  font-weight: 500;
+  color: #475569;
+  text-decoration: none;
+  padding: 20px 0;
+  transition: color 0.15s ease;
+  cursor: pointer;
+}
+
+.tp-nav-link:hover {
+  color: #0f172a;
+}
+
+.tp-nav-link.active {
+  color: #0f172a;
+  font-weight: 600;
+}
+
+.tp-nav-link.active::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 2.5px;
+  background-color: #2563eb;
+  border-radius: 2px 2px 0 0;
+}
+
+.tp-topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+/* ── Main Container ────────────────────────────────────────────────────── */
+.tp-main {
+  flex: 1;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2.5rem 2rem 4rem 2rem;
+  position: relative;
+}
+
+/* ── Top Header Profile Card ───────────────────────────────────────────── */
+.tp-profile-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 2.5rem 2.5rem;
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+}
+
+.tp-avatar-wrapper {
+  position: relative;
+  width: 120px;
+  height: 120px;
+  flex-shrink: 0;
+}
+
+.tp-avatar-img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid #ffffff;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.tp-verified-badge {
+  position: absolute;
+  bottom: 4px;
+  right: 4px;
+  background: #2563eb;
+  color: #ffffff;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid #ffffff;
+  font-size: 12px;
+}
+
+.tp-profile-info {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.tp-profile-name {
+  font-size: 2.2rem;
+  font-weight: 800;
+  color: #0f172a;
+  letter-spacing: -0.025em;
+  margin: 0;
+}
+
+.tp-profile-college {
+  font-size: 1.05rem;
+  color: #475569;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+}
+
+.tp-role-pills {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.tp-role-pill {
+  background-color: #eff6ff;
+  color: #1d4ed8;
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 5px 14px;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* ── Content Grid Layout ────────────────────────────────────────────────── */
+.tp-grid {
+  display: grid;
+  grid-template-columns: 1.6fr 1fr;
+  gap: 2rem;
+}
+
+.tp-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 1.75rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+}
+
+.tp-card-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #0f172a;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 1.25rem 0;
+}
+
+.tp-text {
+  font-size: 0.95rem;
+  line-height: 1.65;
+  color: #334155;
+  margin: 0;
+}
+
+/* Skills Section */
+.tp-section-subtitle {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin: 1.25rem 0 0.6rem 0;
+}
+
+.tp-section-subtitle:first-of-type {
+  margin-top: 0;
+}
+
+.tp-skills-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.tp-skill-tag {
+  background: #eff6ff;
+  color: #1d4ed8;
+  font-size: 0.86rem;
+  font-weight: 500;
+  padding: 6px 14px;
+  border-radius: 20px;
+}
+
+.tp-skill-tag.non-tech {
+  background: #f1f5f9;
+  color: #334155;
+}
+
+/* Previous Projects */
+.tp-project-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 1.25rem;
+  margin-bottom: 1rem;
+}
+
+.tp-project-card:last-child {
+  margin-bottom: 0;
+}
+
+.tp-project-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+}
+
+.tp-project-main {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.tp-project-icon-box {
+  width: 44px;
+  height: 44px;
+  background: #0f172a;
+  color: #ffffff;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+}
+
+.tp-project-icon-box.blue {
+  background: #2563eb;
+}
+
+.tp-project-name {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0;
+}
+
+.tp-project-tag {
+  background: #f1f5f9;
+  color: #64748b;
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 6px;
+}
+
+.tp-project-desc {
+  font-size: 0.9rem;
+  color: #475569;
+  margin: 0.5rem 0 0.5rem 0;
+}
+
+.tp-winner-badge {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #475569;
+}
+
+/* ── Compatibility Card ────────────────────────────────────────────────── */
+.tp-card.compatibility {
+  background: linear-gradient(180deg, #f0f9ff 0%, #ffffff 100%);
+  border: 1.5px solid #38bdf8;
+}
+
+.tp-score-circle-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin: 1.5rem 0;
+}
+
+.tp-score-circle {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  border: 8px solid #005d7f;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 14px rgba(0, 93, 127, 0.15);
+}
+
+.tp-score-val {
+  font-size: 1.9rem;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.tp-score-lbl {
+  font-size: 0.65rem;
+  font-weight: 800;
+  color: #005d7f;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.tp-why-title {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin-bottom: 0.75rem;
+}
+
+.tp-why-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.tp-why-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 0.88rem;
+  color: #334155;
+  line-height: 1.45;
+}
+
+.tp-why-icon {
+  color: #2563eb;
+  font-weight: bold;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+/* ── Availability Card ─────────────────────────────────────────────────── */
+.tp-status-box {
+  background: #eff6ff;
+  border-radius: 12px;
+  padding: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 1.25rem;
+}
+
+.tp-status-dot {
+  width: 10px;
+  height: 10px;
+  background-color: #2563eb;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.tp-status-title {
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: #0f172a;
+}
+
+.tp-status-sub {
+  font-size: 0.82rem;
+  color: #64748b;
+}
+
+.tp-commit-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 4px;
+}
+
+.tp-commit-val {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #0f172a;
+  margin-bottom: 0.5rem;
+}
+
+.tp-commit-sub {
+  font-size: 0.88rem;
+  color: #475569;
+  margin: 0;
+}
+
+/* ── Floating Invite Button ───────────────────────────────────────────── */
+.tp-invite-float-btn {
+  position: fixed;
+  bottom: 2rem;
+  right: 2.5rem;
+  background-color: #0f172a;
+  color: #ffffff;
+  border: 1px solid #1e293b;
+  padding: 14px 28px;
+  border-radius: 30px;
+  font-size: 1rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  box-shadow: 0 10px 25px rgba(15, 23, 42, 0.25);
+  z-index: 1000;
+  transition: all 0.2s ease;
+}
+
+.tp-invite-float-btn:hover {
+  background-color: #1e293b;
+  transform: translateY(-2px);
+  box-shadow: 0 14px 30px rgba(15, 23, 42, 0.35);
+}
+
+.tp-invite-float-btn.invited {
+  background-color: #166534;
+  border-color: #166534;
+}
+
+/* Footer */
+.tp-footer {
+  background: #ffffff;
+  border-top: 1px solid #e2e8f0;
+  padding: 1.75rem 2rem;
+  margin-top: auto;
+}
+
+.tp-footer-container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+  .tp-grid {
+    grid-template-columns: 1fr;
+  }
+  .tp-profile-card {
+    flex-direction: column;
+    text-align: center;
+  }
+  .tp-invite-float-btn {
+    bottom: 1rem;
+    right: 1rem;
+  }
+}

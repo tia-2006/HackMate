@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 const Request = require("../models/Request");
 const User = require("../models/User");
+const Profile = require("../models/Profile");
 
 // ==========================================
 // @desc    Send a new request/invitation to another user
@@ -69,12 +70,15 @@ const sendRequest = async (req, res) => {
         const request = await Request.create({
             sender: req.user._id,
             receiver: receiverId,
+            team: req.body.team || req.body.teamId,
+            requestedRole: req.body.requestedRole,
             status: "pending"
         });
 
         await request.populate([
             { path: "sender", select: "name email" },
-            { path: "receiver", select: "name email" }
+            { path: "receiver", select: "name email" },
+            { path: "team", select: "name" }
         ]);
 
         res.status(201).json({
@@ -111,11 +115,23 @@ const getReceivedRequests = async (req, res) => {
 
         const requests = await Request.find(query)
             .populate("sender", "name email")
+            .populate("team", "name")
             .sort({ createdAt: -1 });
 
+        const requestsWithProfiles = await Promise.all(
+            requests.map(async (r) => {
+                const reqObj = r.toObject();
+                if (reqObj.sender) {
+                    const profile = await Profile.findOne({ userId: reqObj.sender._id });
+                    reqObj.senderProfile = profile;
+                }
+                return reqObj;
+            })
+        );
+
         res.status(200).json({
-            count: requests.length,
-            requests
+            count: requestsWithProfiles.length,
+            requests: requestsWithProfiles
         });
     } catch (error) {
         res.status(500).json({
@@ -147,11 +163,23 @@ const getSentRequests = async (req, res) => {
 
         const requests = await Request.find(query)
             .populate("receiver", "name email")
+            .populate("team", "name")
             .sort({ createdAt: -1 });
 
+        const requestsWithProfiles = await Promise.all(
+            requests.map(async (r) => {
+                const reqObj = r.toObject();
+                if (reqObj.receiver) {
+                    const profile = await Profile.findOne({ userId: reqObj.receiver._id });
+                    reqObj.receiverProfile = profile;
+                }
+                return reqObj;
+            })
+        );
+
         res.status(200).json({
-            count: requests.length,
-            requests
+            count: requestsWithProfiles.length,
+            requests: requestsWithProfiles
         });
     } catch (error) {
         res.status(500).json({

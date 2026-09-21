@@ -9,9 +9,9 @@ export default function TeamNavbar({ activeTab = 'dashboard', onTabChange }) {
   const navLinks = [
     { label: 'Home', href: '/' },
     { label: 'Teammates', href: '/teammates' },
-    { label: 'Matches', href: '/teammates?tab=matches' },
+    { label: 'Matches', href: '/matches' },
     { label: 'My Team', href: '/team', active: true },
-    { label: 'Requests', href: '/teammates?tab=requests' },
+    { label: 'Requests', href: '/requests' },
   ];
 
   return (

@@ -5,6 +5,9 @@ import FindTeammatesPage from './pages/FindTeammatesPage';
 import ProfileFormPage from './pages/ProfileFormPage';
 import TeamDashboardPage from './pages/TeamDashboardPage';
 import BuildTeamPage from './pages/BuildTeamPage';
+import RequestsPage from './pages/RequestsPage';
+import MatchesPage from './pages/MatchesPage';
+import TeammateDetailPage from './pages/TeammateDetailPage';
 import './App.css';
 
 // Guard: redirect to /auth if no token
@@ -20,6 +23,10 @@ function App() {
         <Route path="/" element={<HomePage />} />
         <Route path="/auth" element={<AuthForm />} />
         <Route path="/teammates" element={<FindTeammatesPage />} />
+        <Route path="/teammate/:id" element={<TeammateDetailPage />} />
+        <Route path="/alex-chen" element={<TeammateDetailPage />} />
+        <Route path="/matches" element={<MatchesPage />} />
+        <Route path="/requests" element={<RequestsPage />} />
         
         {/* Team Routes */}
         <Route path="/team" element={<TeamDashboardPage />} />

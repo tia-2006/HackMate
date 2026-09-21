@@ -470,9 +470,9 @@ export default function FindTeammatesPage() {
   const navLinks = [
     { label: 'Home', href: '/' },
     { label: 'Teammates', href: '/teammates', active: true },
-    { label: 'Matches', href: '/teammates' },
+    { label: 'Matches', href: '/matches' },
     { label: 'My Team', href: '/team' },
-    { label: 'Requests', href: '/teammates' },
+    { label: 'Requests', href: '/requests' },
   ];
 
   return (
