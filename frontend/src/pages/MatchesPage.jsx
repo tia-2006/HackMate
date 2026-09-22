@@ -258,7 +258,7 @@ export default function MatchesPage() {
                 <button
                   type="button"
                   className="mt-btn-outline"
-                  onClick={() => navigate('/alex-chen')}
+                  onClick={() => navigate(`/teammate/${featuredMatch._id || 'u_sarah'}`, { state: { profile: featuredMatch } })}
                   id="btn-view-sarah-profile"
                 >
                   View Profile
@@ -302,7 +302,7 @@ export default function MatchesPage() {
             <button
               type="button"
               className="mt-btn-full-outline"
-              onClick={() => navigate('/alex-chen')}
+              onClick={() => navigate(`/teammate/${compactMatch._id || 'u_david_chen'}`, { state: { profile: compactMatch } })}
               id="btn-view-david-profile"
             >
               View Profile

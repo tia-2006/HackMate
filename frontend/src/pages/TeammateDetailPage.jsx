@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import '../styles/TeammateDetailPage.css';
 
 const ALEX_CHEN_MOCK = {
@@ -41,14 +41,142 @@ const ALEX_CHEN_MOCK = {
   commitNote: 'Prefers synchronous collaboration in evenings.'
 };
 
+const DAVID_CHEN_MOCK = {
+  _id: 'u_david_chen',
+  fullName: 'David Chen',
+  college: 'Carnegie Mellon University • Data Science Senior',
+  photo: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&auto=format&fit=crop&q=80',
+  preferredRole: 'UI/UX Designer & Data Science',
+  additionalRoles: ['UX Researcher'],
+  bio: 'Looking for a frontend developer to bring UX wireframes to life. I specialize in data visualization, Figma prototyping, and user research to build intuitive hackathon projects.',
+  technicalSkills: ['Figma', 'UX Research', 'Python', 'Data Science', 'User Testing'],
+  nonTechnicalSkills: ['Wireframing', 'Design Systems', 'Product Strategy'],
+  projects: [
+    {
+      id: 'p1',
+      title: 'VizFlow',
+      tag: "PennApps '23",
+      desc: 'Interactive data visualization dashboard for complex datasets.',
+      winnerBadge: '⭐ Winner: Best UI/UX',
+      iconType: 'code',
+    },
+    {
+      id: 'p2',
+      title: 'DesignKit AI',
+      tag: "TreeHacks '24",
+      desc: 'An AI-powered Figma plugin for accessible color palettes.',
+      iconType: 'bot',
+    }
+  ],
+  matchScore: 88,
+  whyMatch: [
+    'Strong Match: Design - Looking for a frontend developer to bring UX wireframes to life.',
+    'Skill Synergy: David designs high-fidelity UX wireframes while you build frontend UI.',
+    'Complementary Focus: High interest in UX Research and Data Science.'
+  ],
+  availability: 'Actively looking for a team',
+  availSub: 'Ready to start immediately',
+  commitment: '15-20 hours / hackathon',
+  commitNote: 'Prefers synchronous design reviews & async feedback.'
+};
+
+const SARAH_JENKINS_MOCK = {
+  _id: 'u_sarah',
+  fullName: 'Sarah Jenkins',
+  college: 'MIT • Computer Science Junior',
+  photo: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=400&auto=format&fit=crop&q=80',
+  preferredRole: 'Backend Developer',
+  additionalRoles: ['Cloud Architect'],
+  bio: 'Junior CS student at MIT focused on high-throughput backend services, database optimization, and FinTech infrastructure. Looking for frontend teammates for upcoming hackathons.',
+  technicalSkills: ['Python', 'Node.js', 'PostgreSQL', 'Docker', 'Redis', 'GraphQL'],
+  nonTechnicalSkills: ['System Architecture', 'Agile Planning'],
+  projects: [
+    {
+      id: 'p1',
+      title: 'PaySwift',
+      tag: "HackMIT '23",
+      desc: 'Micropayment processing API built with Node.js & PostgreSQL.',
+      winnerBadge: '⭐ Winner: FinTech Track',
+      iconType: 'code',
+    }
+  ],
+  matchScore: 94,
+  whyMatch: [
+    'Complementary Skills: You need a Backend Dev, Sarah excels in Python & Node.js.',
+    'Shared Track Interest: Both flagged FinTech Track as primary interest.',
+    'Timezone Alignment: Same timezone.'
+  ],
+  availability: 'Actively looking for a team',
+  availSub: 'Ready to start immediately',
+  commitment: '20+ hours / hackathon',
+  commitNote: 'Available for full weekend sprint.'
+};
+
+const MOCK_PROFILES = {
+  u_alex: ALEX_CHEN_MOCK,
+  u_david_chen: DAVID_CHEN_MOCK,
+  u_sarah: SARAH_JENKINS_MOCK,
+};
+
 export default function TeammateDetailPage() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { id } = useParams();
-  const [profile, setProfile] = useState(ALEX_CHEN_MOCK);
+
+  const getInitialProfile = () => {
+    if (location.state?.profile) {
+      const p = location.state.profile;
+      const base = MOCK_PROFILES[p._id || id] || MOCK_PROFILES[id] || DAVID_CHEN_MOCK;
+      return {
+        ...base,
+        ...p,
+        fullName: p.fullName || p.name || base.fullName,
+        photo: p.photo || base.photo,
+        college: p.college || base.college,
+        preferredRole: p.preferredRole || p.matchRole || base.preferredRole,
+        bio: p.bio || p.matchDesc || base.bio,
+        matchScore: p.matchScore || p.score || base.matchScore,
+        whyMatch: p.whyMatch
+          ? (Array.isArray(p.whyMatch) ? p.whyMatch : [p.whyMatch])
+          : base.whyMatch,
+        technicalSkills: p.skills || p.technicalSkills || base.technicalSkills,
+      };
+    }
+    if (id && MOCK_PROFILES[id]) {
+      return MOCK_PROFILES[id];
+    }
+    return DAVID_CHEN_MOCK;
+  };
+
+  const [profile, setProfile] = useState(getInitialProfile);
   const [invited, setInvited] = useState(false);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
+    if (location.state?.profile) {
+      const p = location.state.profile;
+      const base = MOCK_PROFILES[p._id || id] || MOCK_PROFILES[id] || DAVID_CHEN_MOCK;
+      setProfile({
+        ...base,
+        ...p,
+        fullName: p.fullName || p.name || base.fullName,
+        photo: p.photo || base.photo,
+        college: p.college || base.college,
+        preferredRole: p.preferredRole || p.matchRole || base.preferredRole,
+        bio: p.bio || p.matchDesc || base.bio,
+        matchScore: p.matchScore || p.score || base.matchScore,
+        whyMatch: p.whyMatch
+          ? (Array.isArray(p.whyMatch) ? p.whyMatch : [p.whyMatch])
+          : base.whyMatch,
+        technicalSkills: p.skills || p.technicalSkills || base.technicalSkills,
+      });
+      return;
+    }
+
+    if (id && MOCK_PROFILES[id]) {
+      setProfile(MOCK_PROFILES[id]);
+    }
+
     if (!id) return;
     const token = localStorage.getItem('hackmate_token');
 
@@ -59,18 +187,26 @@ export default function TeammateDetailPage() {
       .then(res => res.json())
       .then(data => {
         if (data.profile) {
+          const base = MOCK_PROFILES[id] || DAVID_CHEN_MOCK;
           setProfile({
-            ...ALEX_CHEN_MOCK,
+            ...base,
             ...data.profile,
-            fullName: data.profile.fullName || ALEX_CHEN_MOCK.fullName,
-            college: `${data.profile.college || 'Stanford'} • Year ${data.profile.year || 3}`,
-            photo: data.profile.photo || ALEX_CHEN_MOCK.photo
+            fullName: data.profile.fullName || data.profile.userId?.name || base.fullName,
+            college: data.profile.college ? `${data.profile.college} • Year ${data.profile.year || 3}` : base.college,
+            photo: data.profile.photo || base.photo,
+            bio: data.profile.bio || base.bio,
+            preferredRole: data.profile.preferredRole || base.preferredRole,
+            technicalSkills: data.profile.technicalSkills?.length ? data.profile.technicalSkills : base.technicalSkills,
           });
         }
       })
-      .catch(() => setProfile(ALEX_CHEN_MOCK))
+      .catch(() => {
+        if (MOCK_PROFILES[id]) {
+          setProfile(MOCK_PROFILES[id]);
+        }
+      })
       .finally(() => setLoading(false));
-  }, [id]);
+  }, [id, location.state]);
 
   const handleInvite = async () => {
     const token = localStorage.getItem('hackmate_token');
@@ -91,6 +227,8 @@ export default function TeammateDetailPage() {
       }
     }
   };
+
+  const firstName = profile.fullName ? profile.fullName.split(' ')[0] : 'User';
 
   const navLinks = [
     { label: 'Home', href: '/' },
@@ -289,9 +427,9 @@ export default function TeammateDetailPage() {
           className={`tp-invite-float-btn ${invited ? 'invited' : ''}`}
           onClick={handleInvite}
           disabled={invited}
-          id="btn-invite-alex"
+          id={`btn-invite-${profile._id || 'user'}`}
         >
-          <span>{invited ? '✓ Invited!' : '👤+ Invite Alex to Team'}</span>
+          <span>{invited ? '✓ Invited!' : `👤+ Invite ${firstName} to Team`}</span>
         </button>
       </main>
 
