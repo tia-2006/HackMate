@@ -80,7 +80,6 @@ export default function AuthForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [apiResponse, setApiResponse] = useState(null);
-  const [showRawJson, setShowRawJson] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -145,7 +144,6 @@ export default function AuthForm() {
   const toggleMode = () => {
     setIsRegister(!isRegister);
     setApiResponse(null);
-    setShowRawJson(false);
   };
 
   return (
@@ -285,23 +283,6 @@ export default function AuthForm() {
                   <p className="welcome-user-text">
                     Welcome, <strong>{apiResponse.user.name}</strong> ({apiResponse.user.email})!
                   </p>
-                </div>
-              )}
-
-              {apiResponse.data && (
-                <div className="debug-toggle-container">
-                  <button
-                    type="button"
-                    className="debug-toggle-btn"
-                    onClick={() => setShowRawJson(!showRawJson)}
-                  >
-                    {showRawJson ? 'Hide Backend Response' : 'View Backend Response'}
-                  </button>
-                  {showRawJson && (
-                    <div className="response-details">
-                      <pre>{JSON.stringify(apiResponse.data, null, 2)}</pre>
-                    </div>
-                  )}
                 </div>
               )}
             </div>
