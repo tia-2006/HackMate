@@ -190,11 +190,6 @@ export default function MatchesPage() {
                 alt={featuredMatch.fullName}
                 className="mt-featured-img"
               />
-              <img
-                src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=400&auto=format&fit=crop&q=80"
-                alt={featuredMatch.fullName}
-                className="mt-featured-img"
-              />
             </div>
 
             <div className="mt-featured-content">
