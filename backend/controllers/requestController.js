@@ -8,9 +8,14 @@ const Profile = require("../models/Profile");
 // @route   POST /api/requests
 // @access  Private (Protected by JWT)
 // ==========================================
+// ==========================================
+// @desc    Send a new request/invitation to another user
+// @route   POST /api/requests
+// @access  Private (Protected by JWT)
+// ==========================================
 const sendRequest = async (req, res) => {
     try {
-        const receiverId = req.body.receiverId || req.body.receiver;
+        let receiverId = req.body.receiverId || req.body.receiver;
 
         // 1. Validate receiverId presence
         if (!receiverId) {
@@ -26,25 +31,41 @@ const sendRequest = async (req, res) => {
             });
         }
 
-        // 3. Prevent sending request to yourself
-        if (req.user._id.toString() === receiverId.toString()) {
-            return res.status(400).json({
-                message: "You cannot send a request to yourself"
-            });
+        // Check if receiverId is a Profile ID or User ID
+        let receiverUser = await User.findById(receiverId);
+        let targetUserId = receiverId;
+        if (!receiverUser) {
+            const profile = await Profile.findById(receiverId);
+            if (profile) {
+                targetUserId = profile.userId;
+                receiverUser = await User.findById(targetUserId);
+            }
         }
 
-        // 4. Check if receiver exists
-        const receiver = await User.findById(receiverId);
-        if (!receiver) {
+        if (!receiverUser) {
             return res.status(404).json({
                 message: "Receiver user not found"
             });
         }
 
-        // 5. Prevent duplicate pending requests between the same two users
+        // 3. Prevent sending request to yourself
+        if (req.user._id.toString() === targetUserId.toString()) {
+            return res.status(400).json({
+                message: "You cannot send a request to yourself"
+            });
+        }
+
+        // 4. Prevent duplicate pending requests between the same two users
+        const userProfile = await Profile.findOne({ userId: req.user._id });
+        const myIds = [req.user._id];
+        if (userProfile) myIds.push(userProfile._id);
+
+        const targetIds = [targetUserId];
+        if (receiverId !== targetUserId) targetIds.push(receiverId);
+
         const existingDirectRequest = await Request.findOne({
-            sender: req.user._id,
-            receiver: receiverId,
+            sender: { $in: myIds },
+            receiver: { $in: targetIds },
             status: "pending"
         });
 
@@ -55,8 +76,8 @@ const sendRequest = async (req, res) => {
         }
 
         const existingReverseRequest = await Request.findOne({
-            sender: receiverId,
-            receiver: req.user._id,
+            sender: { $in: targetIds },
+            receiver: { $in: myIds },
             status: "pending"
         });
 
@@ -66,10 +87,10 @@ const sendRequest = async (req, res) => {
             });
         }
 
-        // 6. Create request
+        // 5. Create request
         const request = await Request.create({
             sender: req.user._id,
-            receiver: receiverId,
+            receiver: targetUserId,
             team: req.body.team || req.body.teamId,
             requestedRole: req.body.requestedRole,
             status: "pending"
@@ -102,19 +123,26 @@ const getReceivedRequests = async (req, res) => {
     try {
         const { status } = req.query;
 
+        // Support matching either User._id or Profile._id in receiver field
+        const userProfile = await Profile.findOne({ userId: req.user._id });
+        const receiverIds = [req.user._id];
+        if (userProfile) {
+            receiverIds.push(userProfile._id);
+        }
+
         const query = {
-            receiver: req.user._id
+            receiver: { $in: receiverIds }
         };
 
         if (status && status !== "all") {
             query.status = status;
         } else if (!status) {
-            // Default to pending received requests as specified
             query.status = "pending";
         }
 
         const requests = await Request.find(query)
             .populate("sender", "name email")
+            .populate("receiver", "name email")
             .populate("team", "name")
             .sort({ createdAt: -1 });
 
@@ -122,8 +150,18 @@ const getReceivedRequests = async (req, res) => {
             requests.map(async (r) => {
                 const reqObj = r.toObject();
                 if (reqObj.sender) {
-                    const profile = await Profile.findOne({ userId: reqObj.sender._id });
+                    let profile = await Profile.findOne({ userId: reqObj.sender._id || reqObj.sender });
+                    if (!profile && reqObj.sender._id) {
+                        profile = await Profile.findById(reqObj.sender._id);
+                    }
                     reqObj.senderProfile = profile;
+                    if (profile && (!reqObj.sender || !reqObj.sender.name)) {
+                        reqObj.sender = {
+                            _id: profile.userId || profile._id,
+                            name: profile.fullName,
+                            email: profile.email || ''
+                        };
+                    }
                 }
                 return reqObj;
             })
@@ -150,19 +188,25 @@ const getSentRequests = async (req, res) => {
     try {
         const { status } = req.query;
 
+        const userProfile = await Profile.findOne({ userId: req.user._id });
+        const senderIds = [req.user._id];
+        if (userProfile) {
+            senderIds.push(userProfile._id);
+        }
+
         const query = {
-            sender: req.user._id
+            sender: { $in: senderIds }
         };
 
         if (status && status !== "all") {
             query.status = status;
         } else if (!status) {
-            // Default to pending sent requests as specified
             query.status = "pending";
         }
 
         const requests = await Request.find(query)
             .populate("receiver", "name email")
+            .populate("sender", "name email")
             .populate("team", "name")
             .sort({ createdAt: -1 });
 
@@ -170,8 +214,18 @@ const getSentRequests = async (req, res) => {
             requests.map(async (r) => {
                 const reqObj = r.toObject();
                 if (reqObj.receiver) {
-                    const profile = await Profile.findOne({ userId: reqObj.receiver._id });
+                    let profile = await Profile.findOne({ userId: reqObj.receiver._id || reqObj.receiver });
+                    if (!profile && reqObj.receiver._id) {
+                        profile = await Profile.findById(reqObj.receiver._id);
+                    }
                     reqObj.receiverProfile = profile;
+                    if (profile && (!reqObj.receiver || !reqObj.receiver.name)) {
+                        reqObj.receiver = {
+                            _id: profile.userId || profile._id,
+                            name: profile.fullName,
+                            email: profile.email || ''
+                        };
+                    }
                 }
                 return reqObj;
             })
@@ -198,14 +252,12 @@ const acceptRequest = async (req, res) => {
     try {
         const id = req.params.id || req.params.requestId;
 
-        // 1. Validate request ID format
         if (!mongoose.Types.ObjectId.isValid(id)) {
             return res.status(400).json({
                 message: "Invalid Request ID format"
             });
         }
 
-        // 2. Find the request
         const request = await Request.findById(id);
 
         if (!request) {
@@ -214,35 +266,30 @@ const acceptRequest = async (req, res) => {
             });
         }
 
-        // 3. Prevent sender from accepting own request
-        if (request.sender.toString() === req.user._id.toString()) {
+        const userProfile = await Profile.findOne({ userId: req.user._id });
+        const myIds = [req.user._id.toString()];
+        if (userProfile) myIds.push(userProfile._id.toString());
+
+        if (myIds.includes(request.sender.toString())) {
             return res.status(403).json({
                 message: "You cannot accept your own request"
             });
         }
 
-        // 4. Verify that authenticated user is the receiver
-        if (request.receiver.toString() !== req.user._id.toString()) {
+        if (!myIds.includes(request.receiver.toString())) {
             return res.status(403).json({
                 message: "Not authorized to accept this request"
             });
         }
 
-        // 5. Verify that request is currently pending
         if (request.status !== "pending") {
             return res.status(400).json({
                 message: `Cannot accept request. Request has already been ${request.status}`
             });
         }
 
-        // 6. Change status to accepted
         request.status = "accepted";
         await request.save();
-
-        await request.populate([
-            { path: "sender", select: "name email" },
-            { path: "receiver", select: "name email" }
-        ]);
 
         res.status(200).json({
             message: "Request accepted successfully",
@@ -265,14 +312,12 @@ const rejectRequest = async (req, res) => {
     try {
         const id = req.params.id || req.params.requestId;
 
-        // 1. Validate request ID format
         if (!mongoose.Types.ObjectId.isValid(id)) {
             return res.status(400).json({
                 message: "Invalid Request ID format"
             });
         }
 
-        // 2. Find the request
         const request = await Request.findById(id);
 
         if (!request) {
@@ -281,35 +326,30 @@ const rejectRequest = async (req, res) => {
             });
         }
 
-        // 3. Prevent sender from rejecting own request
-        if (request.sender.toString() === req.user._id.toString()) {
+        const userProfile = await Profile.findOne({ userId: req.user._id });
+        const myIds = [req.user._id.toString()];
+        if (userProfile) myIds.push(userProfile._id.toString());
+
+        if (myIds.includes(request.sender.toString())) {
             return res.status(403).json({
                 message: "You cannot reject your own request"
             });
         }
 
-        // 4. Verify that authenticated user is the receiver
-        if (request.receiver.toString() !== req.user._id.toString()) {
+        if (!myIds.includes(request.receiver.toString())) {
             return res.status(403).json({
                 message: "Not authorized to reject this request"
             });
         }
 
-        // 5. Verify that request is currently pending
         if (request.status !== "pending") {
             return res.status(400).json({
                 message: `Cannot reject request. Request has already been ${request.status}`
             });
         }
 
-        // 6. Change status to rejected
         request.status = "rejected";
         await request.save();
-
-        await request.populate([
-            { path: "sender", select: "name email" },
-            { path: "receiver", select: "name email" }
-        ]);
 
         res.status(200).json({
             message: "Request rejected successfully",
@@ -332,14 +372,12 @@ const deleteRequest = async (req, res) => {
     try {
         const id = req.params.id || req.params.requestId;
 
-        // 1. Validate request ID format
         if (!mongoose.Types.ObjectId.isValid(id)) {
             return res.status(400).json({
                 message: "Invalid Request ID format"
             });
         }
 
-        // 2. Find the request
         const request = await Request.findById(id);
 
         if (!request) {
@@ -348,17 +386,16 @@ const deleteRequest = async (req, res) => {
             });
         }
 
-        // 3. Allow deletion only if the authenticated user is the sender OR receiver
-        if (
-            request.sender.toString() !== req.user._id.toString() &&
-            request.receiver.toString() !== req.user._id.toString()
-        ) {
+        const userProfile = await Profile.findOne({ userId: req.user._id });
+        const myIds = [req.user._id.toString()];
+        if (userProfile) myIds.push(userProfile._id.toString());
+
+        if (!myIds.includes(request.sender.toString()) && !myIds.includes(request.receiver.toString())) {
             return res.status(403).json({
                 message: "Not authorized to delete this request"
             });
         }
 
-        // 4. Delete using the existing Request model
         await Request.findByIdAndDelete(id);
 
         res.status(200).json({
