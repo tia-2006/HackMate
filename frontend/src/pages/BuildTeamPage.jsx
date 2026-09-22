@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import TeamNavbar from '../components/TeamNavbar';
 import '../styles/BuildTeamPage.css';
@@ -7,17 +7,19 @@ export default function BuildTeamPage() {
   const navigate = useNavigate();
 
   // Team profile state
+  const [teamId, setTeamId] = useState(null);
   const [teamName, setTeamName] = useState('Code Warriors');
   const [hackathon, setHackathon] = useState('Smart India Hackathon 2024');
   const [maxMembers, setMaxMembers] = useState(4);
   const [showEditModal, setShowEditModal] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   // Edit modal temporary form state
   const [editName, setEditName] = useState(teamName);
   const [editHackathon, setEditHackathon] = useState(hackathon);
   const [editMax, setEditMax] = useState(maxMembers);
 
-  // Current members state (starts with 2/4 as in Image 2)
+  // Current members state (starts with fallback data, updated via backend API)
   const [members, setMembers] = useState([
     {
       id: 'alex',
@@ -47,6 +49,7 @@ export default function BuildTeamPage() {
   const [candidates, setCandidates] = useState([
     {
       id: 'david-k',
+      receiverId: null,
       name: 'David K.',
       role: 'Backend Dev',
       matchScore: 95,
@@ -56,6 +59,7 @@ export default function BuildTeamPage() {
     },
     {
       id: 'priya-s',
+      receiverId: null,
       name: 'Priya S.',
       role: 'AI/ML',
       matchScore: 88,
@@ -65,36 +69,137 @@ export default function BuildTeamPage() {
     },
   ]);
 
+  // Fetch team details and candidates from backend
+  useEffect(() => {
+    const fetchBackendData = async () => {
+      const token = localStorage.getItem('hackmate_token');
+      if (!token) return;
+
+      try {
+        setLoading(true);
+
+        // Fetch user's team
+        const teamRes = await fetch('/api/teams/my-teams', {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        if (teamRes.ok) {
+          const teamData = await teamRes.json();
+          if (teamData.teams && teamData.teams.length > 0) {
+            const currentTeam = teamData.teams[0];
+            setTeamId(currentTeam._id);
+            setTeamName(currentTeam.name);
+            setHackathon(currentTeam.hackathon);
+            setMaxMembers(currentTeam.maxMembers || 4);
+
+            if (currentTeam.members && currentTeam.members.length > 0) {
+              const leaderId = currentTeam.leader?._id || currentTeam.leader;
+              const formattedMembers = currentTeam.members.map((m) => {
+                const isLeader = (m._id || m) === leaderId;
+                return {
+                  id: m._id || m,
+                  name: m.profile?.fullName || m.name || 'Team Member',
+                  role: m.profile?.preferredRole || (isLeader ? 'Team Leader' : 'Developer'),
+                  starred: isLeader,
+                  avatar: m.profile?.photo || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80',
+                  skills: m.profile?.technicalSkills?.length ? m.profile.technicalSkills : ['React', 'Node.js'],
+                };
+              });
+              setMembers(formattedMembers);
+            }
+
+            if (currentTeam.requiredRoles && currentTeam.requiredRoles.length > 0) {
+              const formattedMissing = currentTeam.requiredRoles.map((r, idx) => ({
+                id: `role-${idx}`,
+                title: r,
+                badge: idx === 0 ? 'Required' : 'Optional',
+                type: idx === 0 ? 'required' : 'optional',
+              }));
+              setMissingRoles(formattedMissing);
+            }
+          }
+        }
+
+        // Fetch candidates from teammates API
+        const tmRes = await fetch('/api/teammates', {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        if (tmRes.ok) {
+          const tmData = await tmRes.json();
+          if (tmData.teammates && tmData.teammates.length > 0) {
+            const mappedCandidates = tmData.teammates.map((t, index) => ({
+              id: t._id,
+              receiverId: t.userId?._id || t.userId,
+              name: t.fullName || t.userId?.name || 'Candidate',
+              role: t.preferredRole || 'Developer',
+              matchScore: Math.max(70, 95 - index * 5),
+              avatar: t.photo || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=120&auto=format&fit=crop&q=80',
+              skills: (t.technicalSkills || []).map((s) => s.toUpperCase()),
+              invited: false,
+            }));
+            setCandidates(mappedCandidates);
+          }
+        }
+      } catch (err) {
+        console.error('Error fetching backend team data:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchBackendData();
+  }, []);
+
   // Invite / Add candidate handler
-  const handleInviteCandidate = (candidate) => {
+  const handleInviteCandidate = async (candidate) => {
     if (members.length >= maxMembers) {
       alert(`Team already reached max capacity of ${maxMembers} members!`);
       return;
     }
 
-    // Toggle invited
+    const token = localStorage.getItem('hackmate_token');
+    const targetUserId = candidate.receiverId || candidate.id;
+
+    if (token && targetUserId) {
+      try {
+        const response = await fetch('/api/requests', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            receiverId: targetUserId,
+            team: teamId,
+            requestedRole: candidate.role,
+          }),
+        });
+        const resData = await response.json();
+        if (!response.ok && resData.message) {
+          console.warn('API notice:', resData.message);
+        }
+      } catch (err) {
+        console.error('Error sending request:', err);
+      }
+    }
+
+    // Toggle invited state
     setCandidates(
       candidates.map((c) => (c.id === candidate.id ? { ...c, invited: true } : c))
     );
 
-    // Add candidate to current members
+    // Add candidate to current members UI
     const newMember = {
       id: candidate.id,
       name: candidate.name,
-      role: candidate.role === 'Backend Dev' ? 'Backend Developer' : 'AI/ML Engineer',
+      role: candidate.role,
       starred: false,
       avatar: candidate.avatar,
       skills: candidate.skills.map((s) => s.charAt(0) + s.slice(1).toLowerCase()),
     };
 
     setMembers([...members, newMember]);
-
-    // Update missing roles
-    if (candidate.id === 'david-k') {
-      setMissingRoles(missingRoles.filter((r) => r.id !== 'be'));
-    } else if (candidate.id === 'priya-s') {
-      setMissingRoles(missingRoles.filter((r) => r.id !== 'aiml'));
-    }
   };
 
   // Toggle member star
@@ -104,8 +209,42 @@ export default function BuildTeamPage() {
     );
   };
 
-  const handleSaveTeam = (e) => {
+  const handleSaveTeam = async (e) => {
     e.preventDefault();
+    const token = localStorage.getItem('hackmate_token');
+
+    if (token) {
+      try {
+        const endpoint = teamId ? `/api/teams/${teamId}` : '/api/teams';
+        const method = teamId ? 'PUT' : 'POST';
+
+        const response = await fetch(endpoint, {
+          method,
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            name: editName,
+            hackathon: editHackathon,
+            maxMembers: Number(editMax),
+          }),
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          if (data.team) {
+            setTeamId(data.team._id);
+            setTeamName(data.team.name);
+            setHackathon(data.team.hackathon);
+            setMaxMembers(data.team.maxMembers);
+          }
+        }
+      } catch (err) {
+        console.error('Failed to save team on backend:', err);
+      }
+    }
+
     setTeamName(editName);
     setHackathon(editHackathon);
     setMaxMembers(Number(editMax));

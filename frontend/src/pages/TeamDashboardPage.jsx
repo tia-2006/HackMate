@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import TeamNavbar from '../components/TeamNavbar';
 import '../styles/TeamDashboardPage.css';
@@ -14,12 +14,18 @@ export default function TeamDashboardPage() {
   const [showTasksModal, setShowTasksModal] = useState(false);
   const [showFilesModal, setShowFilesModal] = useState(false);
 
+  // Backend team data state
+  const [teamId, setTeamId] = useState(null);
+  const [teamName, setTeamName] = useState('Code Warriors');
+  const [hackathonName, setHackathonName] = useState('Smart India Hackathon');
+  const [maxMembers, setMaxMembers] = useState(5);
+
   // Requirement form state
   const [reqRole, setReqRole] = useState('Backend Developer');
   const [reqSkills, setReqSkills] = useState('Python, FastAPI, PostgreSQL');
   const [reqDesc, setReqDesc] = useState('Build scalable APIs and orchestrate cloud deployment.');
 
-  // Team roster state
+  // Team roster state (starts with fallback, populated via backend API)
   const [members, setMembers] = useState([
     {
       id: 1,
@@ -52,6 +58,63 @@ export default function TeamDashboardPage() {
     { id: 'slot-2', role: 'AI/ML' },
   ]);
 
+  // Fetch team details from backend API
+  useEffect(() => {
+    const fetchBackendTeam = async () => {
+      const token = localStorage.getItem('hackmate_token');
+      if (!token) return;
+
+      try {
+        const response = await fetch('/api/teams/my-teams', {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          if (data.teams && data.teams.length > 0) {
+            const currentTeam = data.teams[0];
+            setTeamId(currentTeam._id);
+            setTeamName(currentTeam.name);
+            setHackathonName(currentTeam.hackathon);
+            const teamMax = currentTeam.maxMembers || 5;
+            setMaxMembers(teamMax);
+
+            if (currentTeam.members && currentTeam.members.length > 0) {
+              const leaderId = currentTeam.leader?._id || currentTeam.leader;
+              const formattedMembers = currentTeam.members.map((m) => {
+                const isLeader = (m._id || m) === leaderId;
+                return {
+                  id: m._id || m,
+                  name: m.profile?.fullName || m.name || 'Team Member',
+                  role: m.profile?.preferredRole || (isLeader ? 'Leader' : 'Developer'),
+                  isLeader,
+                  avatar: m.profile?.photo || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80',
+                  skills: m.profile?.technicalSkills?.length ? m.profile.technicalSkills : ['React', 'Node.js'],
+                };
+              });
+              setMembers(formattedMembers);
+
+              const emptyCount = Math.max(0, teamMax - formattedMembers.length);
+              const calculatedSlots = [];
+              const requiredRolesList = currentTeam.requiredRoles || ['Backend', 'AI/ML'];
+              for (let i = 0; i < emptyCount; i++) {
+                calculatedSlots.push({
+                  id: `slot-${i}`,
+                  role: requiredRolesList[i] || 'Teammate',
+                });
+              }
+              setOpenSlots(calculatedSlots);
+            }
+          }
+        }
+      } catch (err) {
+        console.error('Error loading team dashboard backend data:', err);
+      }
+    };
+
+    fetchBackendTeam();
+  }, []);
+
   // Chat message state for Team Chat modal
   const [chatInput, setChatInput] = useState('');
   const [chatMessages, setChatMessages] = useState([
@@ -82,12 +145,62 @@ export default function TeamDashboardPage() {
     setTasks(tasks.map((t) => (t.id === id ? { ...t, done: !t.done } : t)));
   };
 
-  const handleAddCandidate = (candidate) => {
-    if (members.length >= 5) return;
+  const handleAddCandidate = async (candidate) => {
+    if (members.length >= maxMembers) return;
+
+    const token = localStorage.getItem('hackmate_token');
+    if (token && candidate.receiverId) {
+      try {
+        await fetch('/api/requests', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            receiverId: candidate.receiverId,
+            team: teamId,
+            requestedRole: candidate.role,
+          }),
+        });
+      } catch (err) {
+        console.error('Failed to send invite request:', err);
+      }
+    }
+
     setMembers([...members, candidate]);
     setOpenSlots(openSlots.slice(1));
     setShowAddMemberModal(false);
   };
+
+  const handlePublishRequirement = async () => {
+    const token = localStorage.getItem('hackmate_token');
+    const skillsArray = reqSkills.split(',').map((s) => s.trim()).filter(Boolean);
+
+    if (token && teamId) {
+      try {
+        await fetch(`/api/teams/${teamId}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            requiredRoles: [reqRole],
+            requiredSkills: skillsArray,
+            description: reqDesc,
+          }),
+        });
+      } catch (err) {
+        console.error('Failed to publish requirement to backend:', err);
+      }
+    }
+
+    alert(`Requirement published for ${reqRole}! Matches will now be highlighted.`);
+    setShowPostReqModal(false);
+  };
+
+  const formationPct = Math.min(Math.round((members.length / maxMembers) * 100), 100);
 
   return (
     <div className="td-page">
@@ -99,7 +212,7 @@ export default function TeamDashboardPage() {
       <main className="td-main-container">
         {/* ── Team Header ────────────────────────────────────────── */}
         <section className="td-team-header">
-          <h1 className="td-team-title">Team: Code Warriors</h1>
+          <h1 className="td-team-title">Team: {teamName}</h1>
           <div className="td-team-subtitle">
             <span className="td-trophy-icon">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -110,7 +223,7 @@ export default function TeamDashboardPage() {
                 <path d="M6 2v7a6 6 0 0 0 12 0V2Z" />
               </svg>
             </span>
-            <span>Smart India Hackathon</span>
+            <span>{hackathonName}</span>
           </div>
         </section>
 
@@ -118,9 +231,9 @@ export default function TeamDashboardPage() {
         <section className="td-formation-card">
           <div className="td-formation-left">
             <div className="td-formation-label">TEAM FORMATION</div>
-            <div className="td-formation-value">80% Complete</div>
+            <div className="td-formation-value">{formationPct}% Complete</div>
             <div className="td-progress-track">
-              <div className="td-progress-fill" style={{ width: '80%' }} />
+              <div className="td-progress-fill" style={{ width: `${formationPct}%` }} />
             </div>
           </div>
 
@@ -314,7 +427,7 @@ export default function TeamDashboardPage() {
             {/* Team Roster */}
             <div className="td-roster-section">
               <div className="td-roster-header">
-                <h2 className="td-roster-title">Team Roster ({members.length}/5)</h2>
+                <h2 className="td-roster-title">Team Roster ({members.length}/{maxMembers})</h2>
                 <button
                   type="button"
                   className="td-add-member-btn"
@@ -437,10 +550,7 @@ export default function TeamDashboardPage() {
               <button
                 type="button"
                 className="td-btn-primary"
-                onClick={() => {
-                  alert(`Requirement published for ${reqRole}! Matches will now be highlighted.`);
-                  setShowPostReqModal(false);
-                }}
+                onClick={handlePublishRequirement}
               >
                 Publish Requirement
               </button>

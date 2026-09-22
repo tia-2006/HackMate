@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const Team = require("../models/Team");
+const Profile = require("../models/Profile");
 
 
 // ==========================================
@@ -135,7 +136,9 @@ const getTeams = async (req, res) => {
             filter.requiredSkills = { $in: skills };
         }
 
-        const teams = await Team.find(filter);
+        const teams = await Team.find(filter)
+            .populate("leader", "name email")
+            .populate("members", "name email");
 
         res.status(200).json({
             count: teams.length,
@@ -147,6 +150,26 @@ const getTeams = async (req, res) => {
             error: error.message
         });
     }
+};
+
+// Helper function to format team with populated member profiles
+const formatTeamWithProfiles = async (teamDoc) => {
+    const teamObj = teamDoc.toObject ? teamDoc.toObject() : teamDoc;
+    if (teamObj.members && teamObj.members.length > 0) {
+        teamObj.members = await Promise.all(
+            teamObj.members.map(async (member) => {
+                if (typeof member === "object" && member._id) {
+                    const profile = await Profile.findOne({ userId: member._id }).select("fullName preferredRole technicalSkills photo");
+                    return {
+                        ...member,
+                        profile: profile || null
+                    };
+                }
+                return member;
+            })
+        );
+    }
+    return teamObj;
 };
 
 // ==========================================
@@ -174,7 +197,9 @@ const getTeamById = async (req, res) => {
             });
         }
 
-        res.status(200).json({ team });
+        const teamWithProfiles = await formatTeamWithProfiles(team);
+
+        res.status(200).json({ team: teamWithProfiles });
     } catch (error) {
         res.status(500).json({
             message: "Server error",
@@ -197,11 +222,17 @@ const getMyTeams = async (req, res) => {
                 { leader: userId },
                 { members: userId }
             ]
-        });
+        })
+        .populate("leader", "name email")
+        .populate("members", "name email");
+
+        const teamsWithProfiles = await Promise.all(
+            teams.map(t => formatTeamWithProfiles(t))
+        );
 
         res.status(200).json({
-            count: teams.length,
-            teams
+            count: teamsWithProfiles.length,
+            teams: teamsWithProfiles
         });
     } catch (error) {
         res.status(500).json({
