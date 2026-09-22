@@ -18,6 +18,25 @@ const registerUser = async (req, res) => {
             });
         }
 
+        // Validate password requirements
+        if (typeof password !== "string" || password.length < 6) {
+            return res.status(400).json({
+                message: "Password must be at least 6 characters long"
+            });
+        }
+
+        if (!/[A-Z]/.test(password)) {
+            return res.status(400).json({
+                message: "Password must contain at least one uppercase letter"
+            });
+        }
+
+        if (!/[^A-Za-z0-9\s]/.test(password)) {
+            return res.status(400).json({
+                message: "Password must contain at least one special character"
+            });
+        }
+
         const existingUser = await User.findOne({ email });
 
         if (existingUser) {
