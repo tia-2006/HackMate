@@ -87,13 +87,13 @@ export default function RequestsPage() {
       const recvData = await recvRes.json();
       const sentData = await sentRes.json();
 
-      if (recvRes.ok && recvData.requests && recvData.requests.length > 0) {
+      if (recvRes.ok && Array.isArray(recvData.requests)) {
         setReceivedRequests(recvData.requests);
       } else {
         setReceivedRequests(MOCK_RECEIVED_REQUESTS);
       }
 
-      if (sentRes.ok && sentData.requests && sentData.requests.length > 0) {
+      if (sentRes.ok && Array.isArray(sentData.requests)) {
         setSentRequests(sentData.requests);
       } else {
         setSentRequests(MOCK_SENT_REQUESTS);
@@ -129,15 +129,15 @@ export default function RequestsPage() {
           const errData = await res.json();
           throw new Error(errData.message || 'Failed to accept request');
         }
+        await fetchRequests();
       } catch (err) {
         alert(err.message);
       }
+    } else {
+      setReceivedRequests(prev =>
+        prev.map(r => r._id === requestId ? { ...r, status: 'accepted' } : r)
+      );
     }
-
-    // Optimistically update UI
-    setReceivedRequests(prev =>
-      prev.map(r => r._id === requestId ? { ...r, status: 'accepted' } : r)
-    );
     setActionLoading(prev => ({ ...prev, [requestId]: null }));
   };
 
@@ -158,15 +158,15 @@ export default function RequestsPage() {
           const errData = await res.json();
           throw new Error(errData.message || 'Failed to decline request');
         }
+        await fetchRequests();
       } catch (err) {
         alert(err.message);
       }
+    } else {
+      setReceivedRequests(prev =>
+        prev.map(r => r._id === requestId ? { ...r, status: 'rejected' } : r)
+      );
     }
-
-    // Optimistically update UI
-    setReceivedRequests(prev =>
-      prev.map(r => r._id === requestId ? { ...r, status: 'rejected' } : r)
-    );
     setActionLoading(prev => ({ ...prev, [requestId]: null }));
   };
 
@@ -184,12 +184,13 @@ export default function RequestsPage() {
           const errData = await res.json();
           throw new Error(errData.message || 'Failed to cancel request');
         }
+        await fetchRequests();
       } catch (err) {
         alert(err.message);
       }
+    } else {
+      setSentRequests(prev => prev.filter(r => r._id !== requestId));
     }
-
-    setSentRequests(prev => prev.filter(r => r._id !== requestId));
     setActionLoading(prev => ({ ...prev, [requestId]: null }));
   };
 
