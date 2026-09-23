@@ -1,6 +1,62 @@
 const mongoose = require("mongoose");
 const Team = require("../models/Team");
 const Profile = require("../models/Profile");
+const Request = require("../models/Request");
+const User = require("../models/User");
+
+// Helper function to sync members for accepted requests
+const syncAcceptedMembersForTeam = async (teamDoc) => {
+    try {
+        if (!teamDoc) return;
+        const acceptedRequests = await Request.find({
+            $or: [
+                { team: teamDoc._id },
+                { sender: teamDoc.leader },
+                { receiver: teamDoc.leader }
+            ],
+            status: "accepted"
+        });
+
+        let updated = false;
+        for (const req of acceptedRequests) {
+            const senderIn = teamDoc.leader.toString() === req.sender.toString() ||
+                teamDoc.members.some(m => (m._id || m).toString() === req.sender.toString());
+            const receiverIn = teamDoc.leader.toString() === req.receiver.toString() ||
+                teamDoc.members.some(m => (m._id || m).toString() === req.receiver.toString());
+
+            let targetRawId = null;
+            if (senderIn && !receiverIn) {
+                targetRawId = req.receiver;
+            } else if (receiverIn && !senderIn) {
+                targetRawId = req.sender;
+            }
+
+            if (targetRawId) {
+                let targetUserId = targetRawId;
+                const userObj = await User.findById(targetRawId);
+                if (!userObj) {
+                    const prof = await Profile.findById(targetRawId);
+                    if (prof && prof.userId) targetUserId = prof.userId;
+                }
+
+                const alreadyIn = teamDoc.members.some(m => (m._id || m).toString() === targetUserId.toString());
+                if (!alreadyIn) {
+                    teamDoc.members.push(targetUserId);
+                    updated = true;
+                }
+            }
+            if (!req.team) {
+                req.team = teamDoc._id;
+                await req.save();
+            }
+        }
+        if (updated) {
+            await teamDoc.save();
+        }
+    } catch (err) {
+        console.error("Error in syncAcceptedMembersForTeam:", err);
+    }
+};
 
 
 // ==========================================
@@ -187,15 +243,19 @@ const getTeamById = async (req, res) => {
             });
         }
 
-        const team = await Team.findById(id)
-            .populate("leader", "name email")
-            .populate("members", "name email");
+        const teamDoc = await Team.findById(id);
 
-        if (!team) {
+        if (!teamDoc) {
             return res.status(404).json({
                 message: "Team not found"
             });
         }
+
+        await syncAcceptedMembersForTeam(teamDoc);
+
+        const team = await Team.findById(id)
+            .populate("leader", "name email")
+            .populate("members", "name email");
 
         const teamWithProfiles = await formatTeamWithProfiles(team);
 
@@ -217,14 +277,35 @@ const getMyTeams = async (req, res) => {
     try {
         const userId = req.user._id;
 
+        // Auto-sync accepted requests for user teams or requests involving user
+        const acceptedRequests = await Request.find({
+            $or: [{ sender: userId }, { receiver: userId }],
+            status: "accepted"
+        });
+        const teamIdsFromRequests = acceptedRequests
+            .map(r => r.team)
+            .filter(t => t && mongoose.Types.ObjectId.isValid(t));
+
+        const candidateTeams = await Team.find({
+            $or: [
+                { leader: userId },
+                { members: userId },
+                { _id: { $in: teamIdsFromRequests } }
+            ]
+        });
+
+        for (const t of candidateTeams) {
+            await syncAcceptedMembersForTeam(t);
+        }
+
         const teams = await Team.find({
             $or: [
                 { leader: userId },
                 { members: userId }
             ]
         })
-        .populate("leader", "name email")
-        .populate("members", "name email");
+            .populate("leader", "name email")
+            .populate("members", "name email");
 
         const teamsWithProfiles = await Promise.all(
             teams.map(t => formatTeamWithProfiles(t))
@@ -349,7 +430,7 @@ module.exports = {
     createTeam,
     getTeams,
     getTeamById,
-    getMyTeams, 
+    getMyTeams,
     updateTeam,
     deleteTeam,
     leaveTeam

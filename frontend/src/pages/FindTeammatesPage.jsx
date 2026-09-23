@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import ProfileModal from '../components/ProfileModal';
 import '../styles/FindTeammatesPage.css';
 
@@ -62,29 +62,99 @@ function getInitials(name) {
   return name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
 }
 
-function computeMatchPct(myProfile, teammate) {
-  if (!myProfile) return Math.floor(Math.random() * 35) + 55; // fallback
-  const mySkills = new Set((myProfile.technicalSkills || []).map(s => s.toLowerCase()));
-  const myInterests = new Set((myProfile.interests || []).map(i => i.toLowerCase()));
-  const theirSkills = (teammate.technicalSkills || []).map(s => s.toLowerCase());
-  const theirInterests = (teammate.interests || []).map(i => i.toLowerCase());
+const ROLE_KEYWORDS = {
+  backend: ['node', 'express', 'python', 'django', 'fastapi', 'sql', 'mongo', 'postgres', 'java', 'spring', 'go', 'golang', 'api', 'docker', 'database', 'rest', 'graphql'],
+  frontend: ['react', 'vue', 'angular', 'next', 'javascript', 'typescript', 'html', 'css', 'tailwind', 'redux', 'ui', 'web'],
+  'ui/ux': ['figma', 'design', 'ux', 'ui', 'prototyping', 'wireframing', 'user research', 'adobe', 'photoshop', 'illustrator'],
+  designer: ['figma', 'design', 'ux', 'ui', 'prototyping', 'wireframing', 'user research', 'adobe'],
+  'data scientist': ['python', 'pandas', 'numpy', 'sql', 'machine learning', 'scikit', 'tableau', 'statistics', 'r', 'data', 'tensorflow', 'pytorch'],
+  data: ['python', 'pandas', 'numpy', 'sql', 'machine learning', 'scikit', 'tableau', 'statistics', 'r', 'data', 'tensorflow', 'pytorch'],
+  'ai/ml': ['python', 'pytorch', 'tensorflow', 'machine learning', 'deep learning', 'nlp', 'llm', 'cv', 'keras', 'ai', 'ml'],
+  ai: ['python', 'pytorch', 'tensorflow', 'machine learning', 'deep learning', 'nlp', 'llm', 'cv', 'keras', 'ai'],
+  ml: ['python', 'pytorch', 'tensorflow', 'machine learning', 'deep learning', 'nlp', 'llm', 'cv', 'keras', 'ml'],
+  mobile: ['flutter', 'react native', 'swift', 'kotlin', 'android', 'ios', 'mobile'],
+  devops: ['docker', 'kubernetes', 'aws', 'ci/cd', 'linux', 'terraform', 'jenkins', 'cloud', 'devops']
+};
+
+function computeMatchPct(myProfile, teammate, myTeam = null, targetRole = '') {
+  if (!teammate) return 50;
+  const candRole = (teammate.preferredRole || '').toLowerCase().trim();
+  const candSkills = (teammate.technicalSkills || []).map(s => s.toLowerCase().trim());
+  const candInterests = (teammate.interests || []).map(i => i.toLowerCase().trim());
+
+  // 1. If scoring for a specific needed role (from "My Team" or role filter):
+  if (targetRole && targetRole !== 'Any') {
+    const roleTarget = targetRole.toLowerCase().trim();
+    let rolePoints = 8;
+
+    // Check exact or core role title match
+    if (candRole && (candRole === roleTarget || candRole.includes(roleTarget) || roleTarget.includes(candRole))) {
+      rolePoints = 42;
+    } else if (
+      (roleTarget.includes('backend') || roleTarget.includes('frontend')) &&
+      (candRole.includes('full stack') || candRole.includes('full-stack'))
+    ) {
+      rolePoints = 28;
+    } else {
+      // Disregard generic non-discriminating stop words (e.g. 'developer', 'engineer')
+      const stopWords = new Set(['developer', 'engineer', 'specialist', 'expert', 'lead', 'dev', 'and', 'the']);
+      const tokens = roleTarget.split(/[\s/]+/).map(t => t.trim()).filter(t => t.length > 2 && !stopWords.has(t));
+      if (tokens.length > 0 && tokens.some(t => candRole.includes(t))) {
+        rolePoints = 36;
+      }
+    }
+
+    // Role-specific keywords + team's custom required skills
+    let relevantKeywords = (myTeam?.requiredSkills || []).map(s => s.toLowerCase().trim());
+    Object.keys(ROLE_KEYWORDS).forEach(key => {
+      if (roleTarget.includes(key)) {
+        relevantKeywords = [...relevantKeywords, ...ROLE_KEYWORDS[key]];
+      }
+    });
+
+    const matchingSkills = candSkills.filter(s =>
+      relevantKeywords.some(kw => s === kw || s.includes(kw) || kw.includes(s))
+    );
+
+    let skillPoints = 0;
+    if (matchingSkills.length >= 3) skillPoints = 34;
+    else if (matchingSkills.length === 2) skillPoints = 24;
+    else if (matchingSkills.length === 1) skillPoints = 14;
+
+    const expPoints = Math.min((teammate.hackathonsAttended || 0) * 2, 10);
+    return Math.min(rolePoints + skillPoints + expPoints + 12, 98);
+  }
+
+  // 2. General matching when browsing without a specific target role:
+  if (!myProfile) return Math.floor(Math.random() * 20) + 70;
+  const mySkills = new Set((myProfile.technicalSkills || []).map(s => s.toLowerCase().trim()));
+  const myInterests = new Set((myProfile.interests || []).map(i => i.toLowerCase().trim()));
 
   let overlap = 0;
   let total = 0;
 
-  theirSkills.forEach(s => {
+  candSkills.forEach(s => {
     total++;
     if (mySkills.has(s)) overlap++;
   });
-  theirInterests.forEach(i => {
+  candInterests.forEach(i => {
     total++;
     if (myInterests.has(i)) overlap++;
   });
 
-  // Also factor hackathon experience
-  const hackathonBonus = Math.min((teammate.hackathonsAttended || 0) * 3, 15);
-  const base = total > 0 ? Math.round((overlap / total) * 70) : 50;
-  return Math.min(base + hackathonBonus + 20, 99);
+  const base = total > 0 ? Math.round((overlap / total) * 55) : 35;
+  const hackathonBonus = Math.min((teammate.hackathonsAttended || 0) * 3, 12);
+
+  // Team requirement bonus
+  let teamBonus = 0;
+  if (myTeam) {
+    const requiredRoles = (myTeam.requiredRoles || []).map(r => r.toLowerCase().trim());
+    if (requiredRoles.some(r => r && (candRole.includes(r) || r.includes(candRole)))) {
+      teamBonus += 22;
+    }
+  }
+
+  return Math.min(base + hackathonBonus + teamBonus + 20, 99);
 }
 
 function getMatchLevel(pct) {
@@ -317,12 +387,24 @@ const MOCK_TEAMMATES = [
 // ── Main Page ──────────────────────────────────────────────
 export default function FindTeammatesPage() {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  // Retrieve needed role from URL query param (e.g. /teammates?role=Backend%20Developer)
+  const roleQueryParam = searchParams.get('role') || searchParams.get('neededRole') || '';
 
   // State
   const [teammates, setTeammates] = useState([]);
   const [myProfile, setMyProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [targetNeededRole, setTargetNeededRole] = useState(roleQueryParam);
+
+  // Sync state if URL query param changes
+  useEffect(() => {
+    if (roleQueryParam) {
+      setTargetNeededRole(roleQueryParam);
+    }
+  }, [roleQueryParam]);
 
   // Filters
   const [search, setSearch] = useState('');
@@ -335,6 +417,7 @@ export default function FindTeammatesPage() {
   const [inviteStates, setInviteStates] = useState({}); // { [teammateId]: 'idle'|'loading'|'invited' }
   const [selectedProfile, setSelectedProfile] = useState(null);
   const [toasts, setToasts] = useState([]);
+  const [myTeam, setMyTeam] = useState(null);
 
   // Debounce search
   const searchTimeout = useRef(null);
@@ -345,13 +428,20 @@ export default function FindTeammatesPage() {
     return () => clearTimeout(searchTimeout.current);
   }, [search]);
 
-  // ── Fetch my profile ───────────────────────────────────
+  // ── Fetch my profile & team ────────────────────────────
   useEffect(() => {
     const token = localStorage.getItem('hackmate_token');
     if (!token) return;
+
     apiFetch('/api/profile/me')
       .then(d => setMyProfile(d.profile))
       .catch(() => setMyProfile(null));
+
+    apiFetch('/api/teams/my-teams')
+      .then(d => {
+        if (d.teams && d.teams.length > 0) setMyTeam(d.teams[0]);
+      })
+      .catch(() => setMyTeam(null));
   }, []);
 
   // ── Fetch teammates ────────────────────────────────────
@@ -361,6 +451,7 @@ export default function FindTeammatesPage() {
     try {
       const params = new URLSearchParams();
       if (debouncedSearch) params.set('search', debouncedSearch);
+      // Only filter by role if user manually picked a role from the sidebar other than 'Any'
       if (selectedRole && selectedRole !== 'Any') params.set('role', selectedRole);
       if (activeSkills.length > 0) params.set('skill', activeSkills.join(','));
 
@@ -390,19 +481,32 @@ export default function FindTeammatesPage() {
       else if (expFilter === '2-5') list = list.filter(t => (t.hackathonsAttended ?? 0) >= 2 && (t.hackathonsAttended ?? 0) <= 5);
       else if (expFilter === '5+') list = list.filter(t => (t.hackathonsAttended ?? 0) > 5);
 
-      // Attach match %
-      list = list.map(t => ({ ...t, _matchPct: computeMatchPct(myProfile, t) }));
-      // Sort by match descending
+      // Determine active role for match score calculation:
+      // When navigated from "My Team" for an open position, targetNeededRole dictates the scoring.
+      const activeScoringRole = targetNeededRole || (selectedRole !== 'Any' ? selectedRole : '');
+
+      // Attach match % evaluated against the specific needed role
+      list = list.map(t => ({
+        ...t,
+        _matchPct: computeMatchPct(myProfile, t, myTeam, activeScoringRole)
+      }));
+
+      // Sort by match descending so candidates best matching the needed role are at the top
       list.sort((a, b) => b._matchPct - a._matchPct);
 
       setTeammates(list);
     } catch (err) {
-      let list = MOCK_TEAMMATES.map(t => ({ ...t, _matchPct: computeMatchPct(myProfile, t) }));
+      const activeScoringRole = targetNeededRole || (selectedRole !== 'Any' ? selectedRole : '');
+      let list = MOCK_TEAMMATES.map(t => ({
+        ...t,
+        _matchPct: computeMatchPct(myProfile, t, myTeam, activeScoringRole)
+      }));
+      list.sort((a, b) => b._matchPct - a._matchPct);
       setTeammates(list);
     } finally {
       setLoading(false);
     }
-  }, [debouncedSearch, selectedRole, activeSkills, expFilter, myProfile]);
+  }, [debouncedSearch, selectedRole, activeSkills, expFilter, myProfile, myTeam, targetNeededRole]);
 
   useEffect(() => { fetchTeammates(); }, [fetchTeammates]);
 
@@ -432,7 +536,10 @@ export default function FindTeammatesPage() {
     try {
       await apiFetch('/api/requests', {
         method: 'POST',
-        body: JSON.stringify({ receiverId }),
+        body: JSON.stringify({
+          receiverId,
+          requestedRole: targetNeededRole || teammate.preferredRole || 'Developer'
+        }),
       });
       setInviteStates(prev => ({ ...prev, [teammate._id]: 'invited' }));
       addToast(`Invite sent to ${teammate.fullName || 'teammate'}! 🎉`, 'success');
@@ -456,9 +563,11 @@ export default function FindTeammatesPage() {
     setSkillFilter('');
     setExpFilter('');
     setSearch('');
+    setTargetNeededRole('');
+    setSearchParams({});
   };
 
-  const hasFilters = selectedRole !== 'Any' || activeSkills.length > 0 || expFilter || search;
+  const hasFilters = selectedRole !== 'Any' || activeSkills.length > 0 || expFilter || search || Boolean(targetNeededRole);
 
   // ── Logout ─────────────────────────────────────────────
   const handleLogout = () => {
@@ -538,7 +647,14 @@ export default function FindTeammatesPage() {
 
           {/* Role Filter */}
           <div className="ft-filter-group">
-            <label className="ft-filter-label">Role</label>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
+              <label className="ft-filter-label" style={{ margin: 0 }}>Role</label>
+              {targetNeededRole && (
+                <span style={{ fontSize: '0.72rem', color: '#818cf8', fontWeight: 600, background: 'rgba(99,102,241,0.15)', padding: '2px 6px', borderRadius: 4 }}>
+                  Targeted
+                </span>
+              )}
+            </div>
             <div className="ft-radio-list">
               {ROLE_OPTIONS.map(role => (
                 <label
@@ -550,7 +666,15 @@ export default function FindTeammatesPage() {
                     name="role"
                     value={role}
                     checked={selectedRole === role}
-                    onChange={() => setSelectedRole(role)}
+                    onChange={() => {
+                      setSelectedRole(role);
+                      if (role !== 'Any') {
+                        setTargetNeededRole(role);
+                      } else {
+                        setTargetNeededRole('');
+                        setSearchParams({});
+                      }
+                    }}
                   />
                   <span>{role}</span>
                 </label>
@@ -616,8 +740,40 @@ export default function FindTeammatesPage() {
         <main className="ft-main">
           <div className="ft-main-header">
             <h1 className="ft-main-title">Find Teammates</h1>
-            <p className="ft-main-sub">Based on your project needs and skills.</p>
+            <p className="ft-main-sub">
+              {targetNeededRole
+                ? `Scoring and ranking candidates for team position: ${targetNeededRole}`
+                : 'Based on your project needs and skills.'}
+            </p>
           </div>
+
+          {/* Contextual Needed Role Banner */}
+          {targetNeededRole && (
+            <div className="ft-needed-role-banner">
+              <div className="ft-needed-role-banner-left">
+                <span className="ft-target-pill">🎯 Open Position Focus</span>
+                <div className="ft-target-text-block">
+                  <h3 className="ft-target-role-heading">
+                    Matching candidates for: <strong>{targetNeededRole}</strong>
+                  </h3>
+                  <p className="ft-target-role-sub">
+                    Match scores are dynamically calculated based on skills, domain fit, and experience for this role.
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                className="ft-target-clear-btn"
+                onClick={() => {
+                  setTargetNeededRole('');
+                  setSearchParams({});
+                }}
+                title="Reset to general match scoring"
+              >
+                Clear Role Focus ✕
+              </button>
+            </div>
+          )}
 
           {/* Results Bar */}
           {!loading && !error && (

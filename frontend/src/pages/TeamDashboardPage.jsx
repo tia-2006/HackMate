@@ -3,12 +3,100 @@ import { useNavigate } from 'react-router-dom';
 import TopNavbar from '../components/TopNavbar';
 import '../styles/TeamDashboardPage.css';
 
+// Keywords mapping for accurate role skill matching
+const ROLE_KEYWORDS = {
+  backend: ['node', 'express', 'python', 'django', 'fastapi', 'sql', 'mongo', 'postgres', 'java', 'spring', 'go', 'golang', 'api', 'docker', 'database'],
+  frontend: ['react', 'vue', 'angular', 'next', 'javascript', 'typescript', 'html', 'css', 'tailwind', 'redux', 'ui', 'web'],
+  'ui/ux': ['figma', 'design', 'ux', 'ui', 'prototyping', 'wireframing', 'user research', 'adobe'],
+  designer: ['figma', 'design', 'ux', 'ui', 'prototyping', 'wireframing', 'user research', 'adobe'],
+  'data scientist': ['python', 'pandas', 'numpy', 'sql', 'machine learning', 'scikit', 'tableau', 'statistics', 'r', 'data'],
+  data: ['python', 'pandas', 'numpy', 'sql', 'machine learning', 'scikit', 'tableau', 'statistics', 'r', 'data'],
+  'ai/ml': ['python', 'pytorch', 'tensorflow', 'machine learning', 'deep learning', 'nlp', 'llm', 'cv', 'keras', 'ai', 'ml'],
+  ai: ['python', 'pytorch', 'tensorflow', 'machine learning', 'deep learning', 'nlp', 'llm', 'cv', 'keras', 'ai'],
+  ml: ['python', 'pytorch', 'tensorflow', 'machine learning', 'deep learning', 'nlp', 'llm', 'cv', 'keras', 'ml'],
+  mobile: ['flutter', 'react native', 'swift', 'kotlin', 'android', 'ios', 'mobile'],
+  devops: ['docker', 'kubernetes', 'aws', 'ci/cd', 'linux', 'terraform', 'jenkins', 'cloud', 'devops']
+};
+
+function computeRoleMatchScore(neededRole, candidate, teamRequiredSkills = []) {
+  if (!candidate) return 50;
+  const targetLower = (neededRole || '').toLowerCase().trim();
+  const candRole = (candidate.preferredRole || '').toLowerCase().trim();
+  const candSkills = (candidate.technicalSkills || []).map(s => s.toLowerCase().trim());
+
+  // 1. Role alignment (up to 42 pts)
+  let rolePoints = 8;
+  if (candRole && (candRole === targetLower || candRole.includes(targetLower) || targetLower.includes(candRole))) {
+    rolePoints = 42;
+  } else if (
+    (targetLower.includes('backend') || targetLower.includes('frontend')) &&
+    (candRole.includes('full stack') || candRole.includes('full-stack'))
+  ) {
+    rolePoints = 28;
+  } else {
+    const stopWords = new Set(['developer', 'engineer', 'specialist', 'expert', 'lead', 'dev', 'and', 'the']);
+    const targetTokens = targetLower.split(/[\s/]+/).map(t => t.trim()).filter(t => t.length > 2 && !stopWords.has(t));
+    if (targetTokens.length > 0 && targetTokens.some(t => candRole.includes(t))) {
+      rolePoints = 36;
+    }
+  }
+
+  // 2. Skill alignment (up to 34 pts)
+  let relevantKeywords = (teamRequiredSkills || []).map(s => s.toLowerCase().trim());
+  Object.keys(ROLE_KEYWORDS).forEach(key => {
+    if (targetLower.includes(key)) {
+      relevantKeywords = [...relevantKeywords, ...ROLE_KEYWORDS[key]];
+    }
+  });
+
+  const matchingSkills = candSkills.filter(s =>
+    relevantKeywords.some(kw => s === kw || s.includes(kw) || kw.includes(s))
+  );
+
+  let skillPoints = 0;
+  if (matchingSkills.length >= 3) {
+    skillPoints = 34;
+  } else if (matchingSkills.length === 2) {
+    skillPoints = 24;
+  } else if (matchingSkills.length === 1) {
+    skillPoints = 14;
+  }
+
+  // 3. Hackathon experience (up to 10 pts)
+  const expPoints = Math.min((candidate.hackathonsAttended || 0) * 2, 10);
+
+  // 4. Baseline (12 pts)
+  return Math.min(rolePoints + skillPoints + expPoints + 12, 98);
+}
+
+function getTopCandidateForRole(neededRole, candidates, teamRequiredSkills = []) {
+  if (!candidates || candidates.length === 0) return null;
+  let best = null;
+  let maxScore = 0;
+
+  candidates.forEach(cand => {
+    const score = computeRoleMatchScore(neededRole, cand, teamRequiredSkills);
+    if (score > maxScore) {
+      maxScore = score;
+      best = {
+        id: cand._id,
+        name: cand.fullName || cand.userId?.name || 'Candidate',
+        role: cand.preferredRole || 'Developer',
+        score
+      };
+    }
+  });
+
+  return best;
+}
+
 export default function TeamDashboardPage() {
   const navigate = useNavigate();
 
   // Loading & Data State
   const [loading, setLoading] = useState(true);
   const [team, setTeam] = useState(null);
+  const [candidates, setCandidates] = useState([]);
 
   // Modal States
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -37,7 +125,7 @@ export default function TeamDashboardPage() {
   // New Role Form State
   const [newRoleInput, setNewRoleInput] = useState('');
 
-  // ── Fetch User's Team from Backend ────────────────────────────
+  // ── Fetch User's Team & Candidates from Backend ───────────────
   const fetchMyTeam = async () => {
     const token = localStorage.getItem('hackmate_token');
     if (!token) {
@@ -68,8 +156,17 @@ export default function TeamDashboardPage() {
       } else {
         setTeam(null);
       }
+
+      // Also fetch candidates to calculate match score for each needed role
+      const tmRes = await fetch('/api/teammates', {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (tmRes.ok) {
+        const tmData = await tmRes.json();
+        setCandidates(tmData.teammates || []);
+      }
     } catch (err) {
-      console.error('Failed to fetch team:', err);
+      console.error('Failed to fetch team data:', err);
       setTeam(null);
     } finally {
       setLoading(false);
@@ -419,33 +516,52 @@ export default function TeamDashboardPage() {
                 </div>
 
                 <div className="td-roles-list">
-                  {/* Explicit Required Roles */}
-                  {(team.requiredRoles || []).map((roleName) => (
-                    <div key={roleName} className="td-role-card">
-                      <div className="td-role-card-left">
-                        <span className="td-role-tag">Needed Role</span>
-                        <h3 className="td-role-title">{roleName}</h3>
+                  {/* Explicit Required Roles with Targeted Match Score */}
+                  {(team.requiredRoles || []).map((roleName) => {
+                    const candidatePool = candidates.filter((cand) => {
+                      const candUserId = cand.userId?._id || cand.userId;
+                      return !members.some((m) => (m._id || m).toString() === (candUserId || '').toString());
+                    });
+                    const topCand = getTopCandidateForRole(roleName, candidatePool, team.requiredSkills);
+                    return (
+                      <div key={roleName} className="td-role-card">
+                        <div className="td-role-card-left">
+                          <div className="td-role-tag-row">
+                            <span className="td-role-tag">Needed Role</span>
+                            {topCand && (
+                              <span className="td-match-score-badge" title="Top candidate match score for this position">
+                                ⚡ {topCand.score}% Match
+                              </span>
+                            )}
+                          </div>
+                          <h3 className="td-role-title">{roleName}</h3>
+                          {topCand && (
+                            <span className="td-top-candidate-sub">
+                              Top match: <strong>{topCand.name}</strong> ({topCand.role})
+                            </span>
+                          )}
+                        </div>
+                        <div className="td-role-card-right">
+                          <button
+                            type="button"
+                            className="td-btn-sm-primary"
+                            onClick={() => navigate(`/teammates?role=${encodeURIComponent(roleName)}`)}
+                            title={`Find candidates matching ${roleName}`}
+                          >
+                            Find Teammates ➔
+                          </button>
+                          <button
+                            type="button"
+                            className="td-btn-icon-danger"
+                            onClick={() => handleRemoveRole(roleName)}
+                            title="Remove this open role"
+                          >
+                            ✕
+                          </button>
+                        </div>
                       </div>
-                      <div className="td-role-card-right">
-                        <button
-                          type="button"
-                          className="td-btn-sm-primary"
-                          onClick={() => navigate(`/teammates?role=${encodeURIComponent(roleName)}`)}
-                          title={`Search students matching ${roleName}`}
-                        >
-                          Find Teammates ➔
-                        </button>
-                        <button
-                          type="button"
-                          className="td-btn-icon-danger"
-                          onClick={() => handleRemoveRole(roleName)}
-                          title="Remove this open role"
-                        >
-                          ✕
-                        </button>
-                      </div>
-                    </div>
-                  ))}
+                    );
+                  })}
 
                   {/* Empty/Unfilled Generic Slots */}
                   {openSlotCount > (team.requiredRoles || []).length && (

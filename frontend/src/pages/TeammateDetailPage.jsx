@@ -221,7 +221,10 @@ export default function TeammateDetailPage() {
             'Content-Type': 'application/json',
             Authorization: `Bearer ${token}`
           },
-          body: JSON.stringify({ receiverId: profile.userId?._id || profile._id })
+          body: JSON.stringify({
+            receiverId: profile.userId?._id || profile._id,
+            requestedRole: profile.preferredRole || 'Developer'
+          })
         });
       } catch (err) {
         console.error(err);

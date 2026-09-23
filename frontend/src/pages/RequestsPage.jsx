@@ -263,8 +263,8 @@ export default function RequestsPage() {
                   const profile = activeTab === 'received' ? item.senderProfile : item.receiverProfile;
                   const name = profile?.fullName || person?.name || 'Unknown User';
                   const photo = profile?.photo;
-                  const teamName = item.team?.name || 'Data Wizards';
-                  const role = item.requestedRole || 'Frontend Dev';
+                  const teamName = item.team?.name || (profile?.preferredRole ? `${profile.preferredRole} Position` : 'Team Invitation');
+                  const role = item.requestedRole || profile?.preferredRole || 'Team Member';
                   const isPending = item.status === 'pending';
 
                   return (
