@@ -117,6 +117,9 @@ export default function BuildTeamPage() {
               }));
               setMissingRoles(formattedMissing);
             }
+          } else {
+            navigate('/team');
+            return;
           }
         }
 
