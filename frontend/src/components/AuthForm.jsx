@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { validateEmailDetails } from '../utils/emailValidator';
 
 // Custom SVG Icons for self-contained UI
 const UserIcon = () => (
@@ -73,6 +74,10 @@ export default function AuthForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [apiResponse, setApiResponse] = useState(null);
+  const [emailTouched, setEmailTouched] = useState(false);
+  const [showEmailChecklist, setShowEmailChecklist] = useState(false);
+
+  const emailValidation = validateEmailDetails(formData.email);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -81,6 +86,16 @@ export default function AuthForm() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setEmailTouched(true);
+
+    if (!emailValidation.isValid) {
+      setApiResponse({
+        type: 'error',
+        message: emailValidation.error,
+      });
+      return;
+    }
+
     setLoading(true);
     setApiResponse(null);
 
@@ -137,6 +152,7 @@ export default function AuthForm() {
   const toggleMode = () => {
     setIsRegister(!isRegister);
     setApiResponse(null);
+    setEmailTouched(false);
   };
 
   return (
@@ -187,9 +203,18 @@ export default function AuthForm() {
               </div>
             )}
 
-            {/* Email Field */}
+            {/* Email Field with Live Validation */}
             <div className="input-group">
-              <label className="input-label" htmlFor="email">College Email</label>
+              <div className="input-label-row">
+                <label className="input-label" htmlFor="email">College Email</label>
+                <button
+                  type="button"
+                  className="checklist-toggle-btn"
+                  onClick={() => setShowEmailChecklist(!showEmailChecklist)}
+                >
+                  {showEmailChecklist ? 'Hide Checklist' : '📋 Validation Rules'}
+                </button>
+              </div>
               <div className="input-wrapper">
                 <span className="input-icon"><MailIcon /></span>
                 <input
@@ -199,10 +224,43 @@ export default function AuthForm() {
                   required
                   placeholder="you@university.edu"
                   value={formData.email}
-                  onChange={handleChange}
-                  className="form-input"
+                  onChange={(e) => {
+                    handleChange(e);
+                    if (!emailTouched) setEmailTouched(true);
+                  }}
+                  onBlur={() => setEmailTouched(true)}
+                  onFocus={() => setShowEmailChecklist(true)}
+                  className={`form-input ${emailTouched && !emailValidation.isValid ? 'input-invalid' : ''} ${emailTouched && emailValidation.isValid ? 'input-valid' : ''}`}
                 />
               </div>
+
+              {/* Error summary message */}
+              {emailTouched && !emailValidation.isValid && (
+                <p className="email-error-text">❌ {emailValidation.error}</p>
+              )}
+              {emailTouched && emailValidation.isValid && (
+                <p className="email-success-text">✅ Email meets all validation rules</p>
+              )}
+
+              {/* Interactive Checklist UI */}
+              {showEmailChecklist && (
+                <div className="email-checklist-box">
+                  <div className="checklist-header">
+                    <span>📧 Email Validation Checklist</span>
+                    <span className="checklist-badge">
+                      {emailValidation.checklist.filter((item) => item.passed).length}/{emailValidation.checklist.length} Passed
+                    </span>
+                  </div>
+                  <div className="checklist-grid">
+                    {emailValidation.checklist.map((item) => (
+                      <div key={item.id} className={`checklist-item ${item.passed ? 'passed' : 'pending'}`}>
+                        <span className="checklist-icon">{item.passed ? '✅' : '❌'}</span>
+                        <span className="checklist-label">{item.label}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Password Field */}

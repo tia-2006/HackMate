@@ -185,6 +185,108 @@
 
 .input-wrapper:focus-within .input-icon { color: #2563eb; }
 
+/* Email Validation Styles */
+.form-input.input-invalid {
+  border-color: #ef4444;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15);
+}
+
+.form-input.input-valid {
+  border-color: #10b981;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
+}
+
+.checklist-toggle-btn {
+  font-size: 0.775rem;
+  color: #2563eb;
+  background: none;
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+  transition: color 0.15s ease;
+}
+
+.checklist-toggle-btn:hover {
+  color: #1d4ed8;
+  text-decoration: underline;
+}
+
+.email-error-text {
+  font-size: 0.8rem;
+  color: #dc2626;
+  font-weight: 500;
+  margin-top: 0.25rem;
+}
+
+.email-success-text {
+  font-size: 0.8rem;
+  color: #059669;
+  font-weight: 500;
+  margin-top: 0.25rem;
+}
+
+.email-checklist-box {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 0.75rem 0.85rem;
+  margin-top: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.checklist-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #334155;
+  border-bottom: 1px solid #e2e8f0;
+  padding-bottom: 0.4rem;
+}
+
+.checklist-badge {
+  font-size: 0.725rem;
+  background: #e2e8f0;
+  color: #475569;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-weight: 600;
+}
+
+.checklist-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.35rem;
+  max-height: 180px;
+  overflow-y: auto;
+}
+
+.checklist-item {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.775rem;
+  line-height: 1.2;
+}
+
+.checklist-item.passed {
+  color: #15803d;
+  font-weight: 500;
+}
+
+.checklist-item.pending {
+  color: #64748b;
+}
+
+.checklist-icon {
+  font-size: 0.85rem;
+  flex-shrink: 0;
+}
+
 .toggle-password-btn {
   position: absolute;
   right: 12px;

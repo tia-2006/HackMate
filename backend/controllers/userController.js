@@ -1,6 +1,7 @@
 const User = require("../models/User");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const { validateEmail } = require("../utils/emailValidator");
 
 const generateToken = (id) => {
     return jwt.sign({ id }, process.env.JWT_SECRET || "hackmate_secret_key", {
@@ -15,6 +16,14 @@ const registerUser = async (req, res) => {
         if (!name || !email || !password) {
             return res.status(400).json({
                 message: "Please provide name, email and password"
+            });
+        }
+
+        // Validate email requirements according to strict email specification checklist
+        const emailError = validateEmail(email);
+        if (emailError) {
+            return res.status(400).json({
+                message: emailError
             });
         }
 
@@ -80,6 +89,13 @@ const loginUser = async (req, res) => {
         if (!email || !password) {
             return res.status(400).json({
                 message: "Please provide email and password"
+            });
+        }
+
+        const emailError = validateEmail(email);
+        if (emailError) {
+            return res.status(400).json({
+                message: emailError
             });
         }
 
