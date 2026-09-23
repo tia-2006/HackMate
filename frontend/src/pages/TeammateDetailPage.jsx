@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
+import TopNavbar from '../components/TopNavbar';
 import '../styles/TeammateDetailPage.css';
 
 const ALEX_CHEN_MOCK = {
@@ -241,45 +242,7 @@ export default function TeammateDetailPage() {
   return (
     <div className="tp-page">
       {/* Top Navbar */}
-      <header className="tp-topbar">
-        <div className="tp-topbar-container">
-          <div className="tp-brand" onClick={() => navigate('/')}>
-            HackMate
-          </div>
-
-          <nav>
-            <ul className="tp-nav-menu">
-              {navLinks.map(link => (
-                <li key={link.label}>
-                  <a
-                    href={link.href}
-                    className={`tp-nav-link ${link.active ? 'active' : ''}`}
-                    onClick={(e) => {
-                      e.preventDefault();
-                      navigate(link.href);
-                    }}
-                  >
-                    {link.label}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </nav>
-
-          <div className="tp-topbar-right">
-            <button
-              className="rq-avatar-btn"
-              aria-label="User Profile"
-              onClick={() => navigate('/profile')}
-            >
-              <img
-                src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80"
-                alt="Profile Avatar"
-              />
-            </button>
-          </div>
-        </div>
-      </header>
+      <TopNavbar activePage="teammates" />
 
       {/* Main Body */}
       <main className="tp-main">

@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
+import TopNavbar from '../components/TopNavbar';
 import '../styles/MatchesPage.css';
 
 // ── Sample Teammate Data matching the screenshot ──────────────────────
@@ -119,56 +120,7 @@ export default function MatchesPage() {
   return (
     <div className="mt-page">
       {/* ── Topbar ─────────────────────────────────────────────────── */}
-      <header className="mt-topbar">
-        <div className="mt-topbar-container">
-          <div className="mt-brand" onClick={() => navigate('/')}>
-            HackMate
-          </div>
-
-          <nav>
-            <ul className="mt-nav-menu">
-              {navLinks.map(link => (
-                <li key={link.label}>
-                  <a
-                    href={link.href}
-                    className={`mt-nav-link ${link.active ? 'active' : ''}`}
-                    onClick={(e) => {
-                      e.preventDefault();
-                      navigate(link.href);
-                    }}
-                  >
-                    {link.label}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </nav>
-
-          <div className="mt-topbar-right">
-            <button
-              className="rq-icon-btn"
-              aria-label="Notifications"
-              onClick={() => setNotificationsOpen(!notificationsOpen)}
-            >
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
-                <path d="M13.73 21a2 2 0 0 1-3.46 0" />
-              </svg>
-            </button>
-
-            <button
-              className="rq-avatar-btn"
-              aria-label="User Profile"
-              onClick={() => navigate('/profile')}
-            >
-              <img
-                src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80"
-                alt="Profile Avatar"
-              />
-            </button>
-          </div>
-        </div>
-      </header>
+      <TopNavbar activePage="matches" />
 
       {/* ── Main Content ───────────────────────────────────────────── */}
       <main className="mt-main">

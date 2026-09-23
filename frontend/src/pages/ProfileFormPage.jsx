@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import TopNavbar from '../components/TopNavbar';
 import '../styles/ProfileFormPage.css';
 
 // ── Icons ──────────────────────────────────────────────────
@@ -328,25 +329,22 @@ export default function ProfileFormPage() {
   return (
     <div className="pf-page">
       {/* Top Navbar */}
-      <header className="pf-topbar">
-        <div className="pf-topbar-inner">
-          <button className="pf-back-btn" onClick={() => navigate('/teammates')}>
-            <ArrowLeftIcon />
-            <span>Back to Teammates</span>
-          </button>
-          <a href="/" className="pf-brand">
-            <span className="pf-brand-icon">⚡</span>
-            <span className="pf-brand-name">HackMate</span>
-          </a>
+      <TopNavbar
+        activePage="profile"
+        extraRight={
           <button className="pf-autofill-btn" onClick={handleAutoFillSample} title="Fill Alex Rivera sample profile">
             <SparklesIcon />
             <span>Fill Sample Data</span>
           </button>
-        </div>
-      </header>
+        }
+      />
 
       {/* Main Container */}
       <div className="pf-container">
+        <button className="pf-back-btn" onClick={() => navigate('/teammates')} style={{ marginBottom: '16px' }}>
+          <ArrowLeftIcon />
+          <span>Back to Teammates</span>
+        </button>
         {/* Header Titles */}
         <div className="pf-header">
           <h1 className="pf-title">

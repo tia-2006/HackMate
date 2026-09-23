@@ -1,0 +1,220 @@
+/* ── HackMate Unified Top Navigation Bar ────────────────── */
+.hm-global-topbar {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background: rgba(11, 13, 19, 0.95);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  height: 64px;
+  width: 100%;
+}
+
+.hm-global-topbar-container {
+  max-width: 1400px;
+  width: 100%;
+  height: 100%;
+  margin: 0 auto;
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+/* Brand */
+.hm-global-brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+  color: #f8fafc;
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  flex-shrink: 0;
+  cursor: pointer;
+  user-select: none;
+  transition: opacity 0.15s ease;
+}
+
+.hm-global-brand:hover {
+  opacity: 0.9;
+}
+
+.hm-global-brand-icon {
+  font-size: 1.25rem;
+  line-height: 1;
+}
+
+.hm-global-brand-text {
+  color: #ffffff;
+  font-weight: 700;
+}
+
+/* Center Navigation Links */
+.hm-global-nav {
+  display: flex;
+  align-items: center;
+}
+
+.hm-global-nav-list {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.hm-global-nav-link {
+  text-decoration: none;
+  color: #94a3b8;
+  font-size: 0.88rem;
+  font-weight: 500;
+  padding: 7px 14px;
+  border-radius: 8px;
+  transition: all 0.18s ease;
+  white-space: nowrap;
+}
+
+.hm-global-nav-link:hover {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.hm-global-nav-link.active {
+  color: #818cf8;
+  background: rgba(99, 102, 241, 0.14);
+  font-weight: 600;
+}
+
+/* Right Area */
+.hm-global-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+/* Icon Buttons (Top Right identical to user screenshot) */
+.hm-global-icon-wrap {
+  position: relative;
+}
+
+.hm-global-icon-btn {
+  background: none;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  width: 38px;
+  height: 38px;
+  padding: 0;
+  color: #94a3b8;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.18s ease;
+  flex-shrink: 0;
+}
+
+.hm-global-icon-btn:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.18);
+}
+
+.hm-global-icon-btn.active {
+  color: #818cf8;
+  border-color: rgba(99, 102, 241, 0.4);
+  background: rgba(99, 102, 241, 0.12);
+}
+
+/* Dropdown Menu for Notifications */
+.hm-global-dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  width: 310px;
+  background: #131620;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+  padding: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  z-index: 1100;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  animation: hmDropdownFade 0.15s ease;
+}
+
+@keyframes hmDropdownFade {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.hm-global-dropdown-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #f8fafc;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.hm-global-badge {
+  font-size: 0.7rem;
+  background: rgba(99, 102, 241, 0.2);
+  color: #818cf8;
+  padding: 2px 6px;
+  border-radius: 6px;
+  font-weight: 600;
+}
+
+.hm-global-dropdown-item {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  font-size: 0.82rem;
+  color: #cbd5e1;
+  line-height: 1.4;
+  padding: 6px;
+  border-radius: 8px;
+}
+
+.hm-global-dropdown-item:hover {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.hm-global-tag-match {
+  background: rgba(16, 185, 129, 0.2);
+  color: #10b981;
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
+.hm-global-tag-team {
+  background: rgba(99, 102, 241, 0.2);
+  color: #818cf8;
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
+@media (max-width: 768px) {
+  .hm-global-topbar-container {
+    padding: 0 16px;
+  }
+  .hm-global-nav-link {
+    padding: 6px 8px;
+    font-size: 0.82rem;
+  }
+}
